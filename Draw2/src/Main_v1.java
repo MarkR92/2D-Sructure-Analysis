@@ -109,8 +109,8 @@ public class Main_v1 extends JFrame{
 					for (Node n : drawPanel.getNodes()) {
 						n.setSelected(true);
 					}
-					for (Beam b : drawPanel.getBeams()) {
-						b.setSelected(true);
+					for (Member member : drawPanel.getMembers()) {
+						member.setSelected(true);
 					}
 					for (Forces f : drawPanel.getForces()) {
 						f.setSelected(true);
@@ -129,11 +129,11 @@ public class Main_v1 extends JFrame{
 					double [][]TempGlobalK = new double[drawPanel.getBeamdof()][drawPanel.getBeamdof()];
 					double [][]TempGlobalK2 = new double[drawPanel.getBeamdof()][drawPanel.getBeamdof()];
 					
-					for (Beam b : drawPanel.getBeams()) {																	//for all beam objects
+					for (Member member : drawPanel.getMembers()) {																	//for all beam objects
 				
 				//	g.blowupLocalk(b.getLocalK(),b.getnodesList());															//blowup localk(6 by 6) up into globalk(dof by dof)
 					
-					g.blowupLocalk2(b.getLocalK(),b.getnodeDOFList());
+					g.blowupLocalk2(member.getLocalK(),member.getnodeDOFList());
 					
 					g.addLocalStiffness(TempGlobalK,TempGlobalK2);
 					}
@@ -152,7 +152,7 @@ public class Main_v1 extends JFrame{
 					
 				//	GFG2 gfg2= new GFG2();
 					double []TempForceF = new double[drawPanel.getBeamdof()];
-					for (Beam b : drawPanel.getBeams()) {
+					for (Member member : drawPanel.getMembers()) {
 						
 ////////////////////////////////////////////////////Member Forces////////////////////////////////////////////////////////
 					for (Forces f : drawPanel.getForces()) {
@@ -160,58 +160,58 @@ public class Main_v1 extends JFrame{
 					//System.out.println(b.getBounds().getCenterY());
 					//System.out.println(f.getLocation());
 						
-						if (b.getNumber() == f.getNumber() && f.getType()=="Point" && b.getbounds().contains(f.getLocation())) {
+						if (member.getNumber() == f.getNumber() && f.getType()=="Point" && member.getbounds().contains(f.getLocation())) {
 						System.out.println("true");
-							reactions.calculateMemberReaction(f.getMagnitude(),f.getType(), b.getLength(), f.getLocation(), b.x1, b.x2,b.y1,b.y2 );
+							reactions.calculateMemberReaction(f.getMagnitude(),f.getType(), member.getLength(), f.getLocation(), member.x1, member.x2,member.y1,member.y2 );
 					
 							double [][]adj = new double[6][6]; // To store adjoint of A[][] 
 							double [][]inv = new double[6][6]; // To store inverse of A[][] 
 							
-					    	invmatrix.adjoint(b.getBeta(), adj); 
+					    	invmatrix.adjoint(member.getBeta(), adj); 
 						 
-						    if (invmatrix.inverse(b.getBeta(), inv)) 
+						    if (invmatrix.inverse(member.getBeta(), inv)) 
 						   
 						    reactions.globalForce( inv, reactions.memberReactionVector());
 						    
 						   // reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
-						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodeDOFList());
+						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getnodeDOFList());
 						    
 						}else {
-							reactions.calculateMemberReaction(0,f.getType(), b.getLength(), f.getLocation(), b.x1, b.x2,b.y1,b.y2 );
+							reactions.calculateMemberReaction(0,f.getType(), member.getLength(), f.getLocation(), member.x1, member.x2,member.y1,member.y2 );
 							
 							double [][]adj = new double[6][6]; // To store adjoint of A[][] 
 							double [][]inv = new double[6][6]; // To store inverse of A[][] 
 							
-					    	invmatrix.adjoint(b.getBeta(), adj); 
+					    	invmatrix.adjoint(member.getBeta(), adj); 
 						 
-						    if (invmatrix.inverse(b.getBeta(), inv)) 
+						    if (invmatrix.inverse(member.getBeta(), inv)) 
 						   
 						    reactions.globalForce( inv, reactions.memberReactionVector());
 						    
 						 //   reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
-						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodeDOFList());
+						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getnodeDOFList());
 							
 							
 							
 						}
 						
-						if (b.getNumber()== f.getNumber() && f.getType()=="UDL") {
+						if (member.getNumber()== f.getNumber() && f.getType()=="UDL") {
 							
-							reactions.calculateMemberReaction((f.getMagnitude()),f.getType(), b.getLength(), f.getLocation(), b.x1, b.x2,b.y1,b.y2);
+							reactions.calculateMemberReaction((f.getMagnitude()),f.getType(), member.getLength(), f.getLocation(), member.x1, member.x2,member.y1,member.y2);
 						
 							//reactions.memberReactionVector();
 							
 							double [][]adj = new double[6][6]; // To store adjoint of A[][]   
 						    double [][]inv = new double[6][6]; // To store inverse of A[][] 
 						    
-						    invmatrix.adjoint(b.getBeta(), adj); 
+						    invmatrix.adjoint(member.getBeta(), adj); 
 							
-							  if (invmatrix.inverse(b.getBeta(), inv)) 
+							  if (invmatrix.inverse(member.getBeta(), inv)) 
 							     
 							    reactions.globalForce( inv, reactions.memberReactionVector());
 							    
 							   // reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
-							  reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodeDOFList());
+							  reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getnodeDOFList());
 							
 							}
 						
@@ -289,9 +289,9 @@ public class Main_v1 extends JFrame{
 					   // drawPanel.addReaction(new Reactions(drawPanel.getBeamdof(), g.getreducedDOF()));
 					    
 					
-					    for (Beam b : drawPanel.getBeams()) {
+					    for (Member member : drawPanel.getMembers()) {
 					    	
-					    	d.localDeflections(b.getNumber());
+					    	d.localDeflections(member.getNumber());
 					    	
 					    	//r(b.getLocalKPrime(), d.getDisplacmentVector());
 					    }
@@ -327,8 +327,8 @@ public class Main_v1 extends JFrame{
 						
 					
 						
-						for (Beam b:drawPanel.getBeams()) {
-							drawPanel.addDisplacement(new DrawDisplacement(U, b.getBeamStart(),b.getBeamEnd(),b.getnodesList(),b.getnodeDOFList()));
+						for (Member member:drawPanel.getMembers()) {
+							drawPanel.addDisplacement(new DrawDisplacement(U, member.getMemberStart(),member.getMemberEnd(),member.getnodesList(),member.getnodeDOFList()));
 							
 						}
 					
@@ -347,7 +347,7 @@ public class Main_v1 extends JFrame{
 				if (result == "Delete") { 
 					
 				drawPanel.deleteNode(); // Delete selected node
-				drawPanel.deleteBeam(); // Delete selected beam
+				drawPanel.deleteMember(); // Delete selected beam
 				drawPanel.deleteForce(); // Delete selected point load
 				drawPanel.deleteFilteredNode();
 				
@@ -422,9 +422,9 @@ public class Main_v1 extends JFrame{
 					}
 					
 				}
-				for (Beam b : drawPanel.getBeams()) { //Iterate through each beam
+				for (Member member : drawPanel.getMembers()) { //Iterate through each beam
 					
-					if (result == "Force" && b.isSelected()) { // check if force is pressed and if a beam was selected
+					if (result == "Force" && member.isSelected()) { // check if force is pressed and if a beam was selected
 						//System.out.println("Here");
 						  forcepane = new ForcePopupPanel(); //Instance of Popup Panel
 						  forcepane.createPopup();  //Force popup panel is displayed
@@ -433,30 +433,30 @@ public class Main_v1 extends JFrame{
 						  
 									if (forcepane.getForce() == "Point") { //Point Force Selected
 										//add to Arraylist 
-										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),forcepane.getDirection2(),b.getNumber(),b.getMidPoint(), b.getAngle(), b.getBeamStart(), b.getBeamEnd()));
+										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),forcepane.getDirection2(),member.getNumber(),member.getMidPoint(), member.getAngle(), member.getMemberStart(), member.getMemberEnd()));
 										
-										b.setSelected(false);
+										member.setSelected(false);
 									
 										drawPanel.repaint();
 										
 									}
 									if (forcepane.getForce() == "UDL") {
 										
-										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),"Perpendicular",b.getNumber(), b.getMidPoint(), b.getAngle(),b.getBeamStart(), b.getBeamEnd()));
+										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),"Perpendicular",member.getNumber(), member.getMidPoint(), member.getAngle(),member.getMemberStart(), member.getMemberEnd()));
 										drawPanel.repaint();
 									}
 									if (forcepane.getForce() == "Moment") { //Point Force Selected
 										//add to Arraylist 
-										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),"Perpendicular",b.getNumber(),b.getMidPoint(), b.getAngle(),b.getBeamStart(), b.getBeamEnd()));
+										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),"Perpendicular",member.getNumber(),member.getMidPoint(), member.getAngle(),member.getMemberStart(), member.getMemberEnd()));
 										
-										b.setSelected(false);
+										member.setSelected(false);
 									
 										drawPanel.repaint();
 										
 									}
 									
 									
-									b.setSelected(false);
+									member.setSelected(false);
 								
 					}
 					
@@ -475,8 +475,8 @@ public class Main_v1 extends JFrame{
 		    	for (Node n : drawPanel.getFilteredNodes()) {
 					n.setSelected(true);
 					}
-					for (Beam b : drawPanel.getBeams()) {
-						b.setSelected(true);
+					for (Member member : drawPanel.getMembers()) {
+						member.setSelected(true);
 					}
 					for (Forces f : drawPanel.getForces()) {
 						f.setSelected(true);
@@ -498,7 +498,7 @@ public class Main_v1 extends JFrame{
 		    public void actionPerformed(ActionEvent e) {
 		    	drawPanel.deleteNode(); 		 // Delete selected node
 		    	drawPanel.deleteFilteredNode();
-				drawPanel.deleteBeam(); 		 // Delete selected beam
+				drawPanel.deleteMember(); 		 // Delete selected beam
 				drawPanel.deleteForce(); 		 // Delete selected point load
 				//drawPanel.deleteFixture();
 				
@@ -636,7 +636,7 @@ public class Main_v1 extends JFrame{
 				}
 				//drawPanel.repaint();
 
-				for (Beam b : drawPanel.getBeams()) {// iterate through each beam
+				for (Member b : drawPanel.getMembers()) {// iterate through each beam
 					if (b.getbounds().contains(me.getPoint())) { // is mouse near beam
 						if (!b.isHighlighted()) {
 							b.setHighlighted(true);
@@ -692,15 +692,15 @@ public class Main_v1 extends JFrame{
 				drawPanel.addTempMember(new TempMember(current,last));
 				}
 				
-				for (Beam b : drawPanel.getBeams()) {
+				for (Member member : drawPanel.getMembers()) {
 					
-					if (b.getbounds().contains(e.getPoint()) && !toolbar.isdrawing) {
-						if (!b.isSelected()) {// check if beam has been clicked on
-							b.setSelected(true);
+					if (member.getbounds().contains(e.getPoint()) && !toolbar.isdrawing) {
+						if (!member.isSelected()) {// check if beam has been clicked on
+							member.setSelected(true);
 							// System.out.println(b.isSelected());
 							drawPanel.repaint();
 						} else {
-							b.setSelected(false);
+							member.setSelected(false);
 						}
 					}
 					
@@ -829,7 +829,7 @@ public class Main_v1 extends JFrame{
 						
 						if (count == 2) {
 							//count2++;
-							drawPanel.addBeam(new Beam(x1, y1, x2, y2,count2, counter, drawPanel.getNodeNum(),start,end));
+							drawPanel.addMember(new Member(x1, y1, x2, y2,count2, counter, drawPanel.getNodeNum(),start,end));
 							//System.out.println(drawPanel.getNodeNum());
 							drawPanel.setBeamdof(counter);
 							

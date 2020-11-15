@@ -180,7 +180,7 @@ public class Forces {
 	
 	}
 	
-	public void drawUDL(Graphics2D g,Beam b) {
+	public void drawUDL(Graphics2D g,Member b) {
 		getLocation();
 			if (direction == "Down") {
 			AffineTransform old = g.getTransform();

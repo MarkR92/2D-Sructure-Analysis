@@ -7,19 +7,19 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 
 
-public class Beam {
+public class Member{
 	
-	int x1,x2,y1,y2;		//beam start and end node location
+	int x1,x2,y1,y2;		//Member start and end node location
 	
-	int start,end;			//beam start and end node number
+	int start,end;			//Member start and end node number
 	
 	int vs,hs,rs;			//vertical,horizontal and rotational start node index
 	int ve,he,re;			//vertical,horizontal and rotational end node index
-	//private int l;
+	
 	private int number;
 	private int dof;
 	
-	//private int[][] nodelist;
+	
 
 	private Color color;
 	
@@ -34,7 +34,8 @@ public class Beam {
 	private double Mb;
 	
 	
-	Beam(int x1, int y1, int x2, int y2, int number, int dof, int nodenum,int start,int end) {
+	Member(int x1, int y1, int x2, int y2, int number, int dof, int nodenum,int start,int end) {
+		
 	   this.x1 = x1;
 	   this.y1 = y1;
 	   this.x2 = x2;
@@ -49,15 +50,15 @@ public class Beam {
 	}
 	
 	public int getNodeNumber() {
+		
 		return nodenum;
 	}
+	
 	public int[] getnodesList(){
 		
 
 	int[]	nodelist = {start,end};
 
-	//System.out.println(start +"," +end);
-		//getnodeDOFList();
 		return nodelist;
 		
 	}
@@ -88,55 +89,16 @@ public class Beam {
 		
 	}
 	
-//	public int[] getNodeDOFList() {
-//
-//		if(number==1) {
-//			int nodedoflist[] = {number,number+1,number+2};	
-//			
-//			for(int j = 0; j<nodedoflist.length; j++) {
-//			//	System.out.print(nodedoflist[j]+ " ");
-//				}
-//			//	System.out.println();
-//				//i++;
-//			return nodedoflist;
-//			
-//		}
-//		
-//		if(number==2) {
-//		int nodedoflist[] = {number+2,number+1+2,number+2+2};
-//		for(int j = 0; j<nodedoflist.length; j++) {
-//			//System.out.print(nodedoflist[j]+ " ");
-//			}
-//			//System.out.println();
-//			//i++;
-//		return nodedoflist;
-//		}else {
-//			
-//			int nodedoflist[] = {number+number+number-2,number+number+number-1,number+number+number};	
-//			
-//		
-//			
-//			//System.out.println(i);
-//			for(int j = 0; j<nodedoflist.length; j++) {
-//			System.out.print(nodedoflist[j]+ " ");
-//			}
-//			System.out.println();
-//			//i++;
-//			return nodedoflist;
-//		
-//		}
-//		}
 	
-	
-	public Point getBeamStart() {
-		Point bstart = new Point(x1,y1);
+	public Point getMemberStart() {
+		Point memberstart = new Point(x1,y1);
 		
-		return bstart;
+		return memberstart;
 	}
-	public Point getBeamEnd() {
-		Point bend = new Point(x2,y2);
+	public Point getMemberEnd() {
+		Point memberend = new Point(x2,y2);
 		
-		return bend;
+		return memberend;
 	}
 	public int getDOF() {
 		dof = dof *3;
@@ -291,7 +253,7 @@ public class Beam {
 	}
 	
 
-public void calBeamReaction(double P, Point ab) {
+public void calculateMemberReaction(double P, Point ab) {
 	
 	double L = getLength();
 	double a = Math.abs(ab.getX()-x2);

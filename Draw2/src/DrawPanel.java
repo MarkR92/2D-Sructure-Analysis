@@ -31,7 +31,7 @@ public class DrawPanel extends JPanel {
 	
 	public ArrayList<Node> nodes = new ArrayList<>();
 	public ArrayList<Node> nodesfilterd = new ArrayList<>();
-	public ArrayList<Beam> beams = new ArrayList<>();
+	public ArrayList<Member> members = new ArrayList<>();
 	public ArrayList<TempMember> tempmember = new ArrayList<>();
 	
 	public ArrayList<Integer> beamends = new ArrayList<>();
@@ -180,11 +180,11 @@ public class DrawPanel extends JPanel {
     }
     
     
- public void addBeam(Beam b) {
+ public void addMember(Member member) {
     	
-        beams.add(b);
+        members.add(member);
         
-        b.getnodesList();
+       member.getnodesList();
     
     }
  
@@ -259,15 +259,15 @@ public class DrawPanel extends JPanel {
    	
    }
   
-    public void deleteBeam() {
+    public void deleteMember() {
     	
-   	 for (Iterator<Beam> beamIterator = beams.iterator(); beamIterator.hasNext();) {
+   	 for (Iterator<Member> memberIterator = members.iterator(); memberIterator.hasNext();) {
    		 
-   		Beam beam = beamIterator.next();
+   		Member member = memberIterator.next();
    		
-   		if (beam.isSelected()) {
+   		if (member.isSelected()) {
    			
-   		 beamIterator.remove();
+   		 memberIterator.remove();
    		 
    		}
 
@@ -324,9 +324,9 @@ public class DrawPanel extends JPanel {
         
     }
     
-    public ArrayList<Beam> getBeams() {
+    public ArrayList<Member> getMembers() {
     	
-        return beams;
+        return members;
         
     }
     
@@ -488,21 +488,21 @@ public class DrawPanel extends JPanel {
         }
             
 
-            	for (Beam beam :beams) {
+            	for (Member member :members) {
             		
-            	beam.drawBeam(g2d);
+            	member.drawBeam(g2d);
             	//beam.drawBeamLength(g2d);
             	//temp.drawTemp(g2d);
        			 count4++;
        			 for (Forces force:forces) {
        		
-       				 if (beam.getNumber() == force.getNumber() && force.getType()=="Point") {
+       				 if (member.getNumber() == force.getNumber() && force.getType()=="Point") {
       				force.drawPointLoad(g2d);
 				 }
-       				 if (beam.getNumber() == force.getNumber() && force.getType()=="UDL") {
-           				force.drawUDL(g2d, beam);
+       				 if (member.getNumber() == force.getNumber() && force.getType()=="UDL") {
+           				force.drawUDL(g2d, member);
      				 }
-       				if (beam.getNumber() == force.getNumber() && force.getType()=="Moment") {
+       				if (member.getNumber() == force.getNumber() && force.getType()=="Moment") {
            				force.drawMoment(g2d);
      				 }
        				
