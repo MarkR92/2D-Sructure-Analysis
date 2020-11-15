@@ -1,8 +1,4 @@
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,8 +8,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -24,15 +18,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 @SuppressWarnings("serial")
 public class Main_v1 extends JFrame{
+	
 	private Toolbar toolbar;
-	private ContainerPanel containerPanel;
 	private DrawPanel drawPanel;
 	private FixturePopupPanel fixturepane;
 	private ForcePopupPanel forcepane;
@@ -42,36 +34,29 @@ public class Main_v1 extends JFrame{
 	
 	private double R[];
 	private double U[];
-	private double[][] G;
+	
 	
 	private double zoom = 1d;
-	private int zoom2 = 1;
 	private Point current ;
 	private Point last;
-	//Point p = new Point();
+	
 	private boolean toAdd = true;
-	private int c;
 	private int count3=0;
-//	private int dof;
+
 	
 	public Main_v1() {
 
 		toolbar = new Toolbar();
-		containerPanel = new ContainerPanel();
 		drawPanel = new DrawPanel();
 		fixturetype = new FixtureType();
 		fileChooser = new JFileChooser();
 		fileChooser.addChoosableFileFilter(new StructureFileFilter());
 		fixturetype.Free(); //all nodes start free
-		//fixture = "Free";
 		
 		JFrame frame = new JFrame(); // Instance of a JFrame
 		JLabel label = new JLabel(" "); // Instance of a JLabel
 		
 		frame.setSize(800, 800);
-		
-	
-		// containerPanel.add(drawPanel);
 		
 		frame.add(drawPanel);
 	    
@@ -79,41 +64,29 @@ public class Main_v1 extends JFrame{
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.add(toolbar, BorderLayout.NORTH); // add tool-bar
 
-
-
 		frame.setJMenuBar(createMenuBar()); // add menu-bar
-	//	
 		
-		  drawPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+		drawPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-		   // frame.add(scroller);
 		
-		
-		
-		
-	
-		
-		
-	//	frame.setVisible(true);
-		//frame.add(containerPanel);
-
-		// Listen for a button on the toolbar to be pressed
-		
-		toolbar.setToolBarListener(new ToolBarListener() {
-			@Override
-			public void stringEmitted(String result) { //result from tool-bar button
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+		toolbar.setToolBarListener(new ToolBarListener() {			//Listen for a button on the toolbar to be pressed
+			@Override
+			public void stringEmitted(String result) { 				//result from tool-bar button
 			
 				if (result == "Select") { 
 					
-					for (Node n : drawPanel.getNodes()) {
-						n.setSelected(true);
+					for (Node node : drawPanel.getNodes()) {
+						node.setSelected(true);
 					}
+					
 					for (Member member : drawPanel.getMembers()) {
 						member.setSelected(true);
 					}
-					for (Forces f : drawPanel.getForces()) {
-						f.setSelected(true);
+					
+					for (Forces force : drawPanel.getForces()) {
+						force.setSelected(true);
 					}
 						
 				}
@@ -124,34 +97,28 @@ public class Main_v1 extends JFrame{
 					drawPanel.deleteReactions();
 					drawPanel.deleteDisplacements();
 					
-					CreateGlobalMatrix g = new CreateGlobalMatrix(drawPanel.getBeamdof());									//create dof by dof global matrix (globalK).
+					CreateGlobalMatrix globalK = new CreateGlobalMatrix(drawPanel.getMemberDOF());									//create dof by dof global matrix (globalK).
 					
-					double [][]TempGlobalK = new double[drawPanel.getBeamdof()][drawPanel.getBeamdof()];
-					double [][]TempGlobalK2 = new double[drawPanel.getBeamdof()][drawPanel.getBeamdof()];
+					double [][]TempGlobalK = new double[drawPanel.getMemberDOF()][drawPanel.getMemberDOF()];
+					double [][]TempGlobalK2 = new double[drawPanel.getMemberDOF()][drawPanel.getMemberDOF()];
 					
-					for (Member member : drawPanel.getMembers()) {																	//for all beam objects
-				
-				//	g.blowupLocalk(b.getLocalK(),b.getnodesList());															//blowup localk(6 by 6) up into globalk(dof by dof)
+					for (Member member : drawPanel.getMembers()) {																
+
+					globalK.blowupLocalk2(member.getLocalK(),member.getnodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
 					
-					g.blowupLocalk2(member.getLocalK(),member.getnodeDOFList());
+					globalK.addLocalStiffness(TempGlobalK,TempGlobalK2);														 //add all globalk's together to create globalK
 					
-					g.addLocalStiffness(TempGlobalK,TempGlobalK2);
 					}
-					
-					//g.addLocalStiffness2();																					//add all globalk's together to create globalK
-					
-					
-					g.reduceGlobalk(drawPanel.getFixtureType());															//reduce globalK depending on fixtures
-					
-					
-					
-					Reactions reactions = new Reactions(drawPanel.getBeamdof(), g.getreducedDOF());
+
+					globalK.reduceGlobalk(drawPanel.getFixtureType());															//reduce globalK depending on fixtures
+
+					Reactions reactions = new Reactions(drawPanel.getMemberDOF(), globalK.getreducedDOF());
 					
 					CalculateInvMatrix invmatrix = new CalculateInvMatrix();
 					invmatrix.setN(6);
 					
-				//	GFG2 gfg2= new GFG2();
-					double []TempForceF = new double[drawPanel.getBeamdof()];
+				
+					double []TempForceF = new double[drawPanel.getMemberDOF()];
 					for (Member member : drawPanel.getMembers()) {
 						
 ////////////////////////////////////////////////////Member Forces////////////////////////////////////////////////////////
@@ -227,7 +194,7 @@ public class Main_v1 extends JFrame{
 					//reactions.addLocalForces(TempForceF);
 					}
 					
-					double []TempForceQ = new double[drawPanel.getBeamdof()];
+					double []TempForceQ = new double[drawPanel.getMemberDOF()];
 				
 					
 					for (Node n : drawPanel.getFilteredNodes()) {
@@ -237,14 +204,14 @@ public class Main_v1 extends JFrame{
 							
 							if (n.getNumber() == f.getNumber() && f.getType()=="Moment") {
 
-								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getBeamdof(),n.getNumber(),TempForceQ,f.getType(),f.getDirection2());
+								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getMemberDOF(),n.getNumber(),TempForceQ,f.getType(),f.getDirection2());
 							}else {
 							//	reactions.nodeReactionVector((0),drawPanel.getBeamdof(),n.getNumber(),TempForceQ,f.getType(),f.getDirection2());
 								
 							}
 							if (n.getNumber() == f.getNumber() && f.getType()=="Point" && f.getLocation().x == n.getMidPoint().x && f.getLocation().y == n.getMidPoint().y) {
 							
-								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getBeamdof(),n.getNumber(),TempForceQ,f.getType(),f.getDirection2());
+								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getMemberDOF(),n.getNumber(),TempForceQ,f.getType(),f.getDirection2());
 							}else {
 								//reactions.nodeReactionVector((0),drawPanel.getBeamdof(),n.getNumber(),TempForceQ,f.getType(),f.getDirection2());
 								
@@ -259,22 +226,22 @@ public class Main_v1 extends JFrame{
 					
 					//reactions.reduceForceVector(drawPanel.getFixtureType());
 			
-					if(g.getreducedDOF()!=0) {
+					if(globalK.getreducedDOF()!=0) {
 						
 					reactions.reduceForceVector(drawPanel.getFixtureType());
 						
-					double [][]adj = new double[g.getreducedDOF()][g.getreducedDOF()]; // To store adjoint of A[][] 
-				    double [][]inv = new double[g.getreducedDOF()][g.getreducedDOF()]; // To store inverse of A[][] 
+					double [][]adj = new double[globalK.getreducedDOF()][globalK.getreducedDOF()]; // To store adjoint of A[][] 
+				    double [][]inv = new double[globalK.getreducedDOF()][globalK.getreducedDOF()]; // To store inverse of A[][] 
 				    
-				    invmatrix.setN( g.getreducedDOF());
+				    invmatrix.setN( globalK.getreducedDOF());
 				 
-				    invmatrix.adjoint(g.getReducedK(), adj); 
+				    invmatrix.adjoint(globalK.getReducedK(), adj); 
 					 
-					    if (invmatrix.inverse(g.getReducedK(), inv)) {
+					    if (invmatrix.inverse(globalK.getReducedK(), inv)) {
 					    	
 					    }
 					   // g.get
-					    Displacements d = new Displacements( drawPanel.getBeamdof(), g.getreducedDOF());
+					    Displacements d = new Displacements( drawPanel.getMemberDOF(), globalK.getreducedDOF());
 					    
 					  d.calculateDeflections(inv, reactions.getReducedForceVector());
 					  
@@ -283,7 +250,7 @@ public class Main_v1 extends JFrame{
 					     U = d.getDisplacmentVector();
 					    //drawPanel.addReaction(R);
 					    
-					    R = reactions.calculateGlobalReaction(g.getGlobalK(), d.getDisplacmentVector());
+					    R = reactions.calculateGlobalReaction(globalK.getGlobalK(), d.getDisplacmentVector());
 					    
 					    
 					   // drawPanel.addReaction(new Reactions(drawPanel.getBeamdof(), g.getreducedDOF()));
@@ -346,13 +313,14 @@ public class Main_v1 extends JFrame{
 				
 				if (result == "Delete") { 
 					
-				drawPanel.deleteNode(); // Delete selected node
-				drawPanel.deleteMember(); // Delete selected beam
-				drawPanel.deleteForce(); // Delete selected point load
+				drawPanel.deleteNode(); 		// Delete selected node
+				drawPanel.deleteMember(); 		// Delete selected beam
+				drawPanel.deleteForce(); 		// Delete selected point load
 				drawPanel.deleteFilteredNode();
 				
 				drawPanel.repaint(); // Update graphics
 				}
+				
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				
 				for (Node n : drawPanel.getFilteredNodes()) { //Iterate through each node
@@ -560,7 +528,7 @@ public class Main_v1 extends JFrame{
                 }
             
           drawPanel.setZoom(zoom);
-             zoom2 = e.getWheelRotation();   
+               
         drawPanel.updatePreferredSize(e.getWheelRotation(), e.getPoint());
                 //grid.setZoom(zoom);
                 drawPanel.repaint();
@@ -867,11 +835,11 @@ public class Main_v1 extends JFrame{
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public void saveToFile (File file) throws IOException{
-		DrawP dp = new DrawP();
+		DrawPanel dp = new DrawPanel();
 		dp.saveToFile(file);
 	}
 	public void loadFromFile (File file) throws IOException{
-		DrawP dp = new DrawP();
+		DrawPanel dp = new DrawPanel();
 
 		dp.loadFromFile(file);
 		dp.repaint();
@@ -899,7 +867,6 @@ public class Main_v1 extends JFrame{
 		fileMenu.add(saveasItem);
 		fileMenu.addSeparator();
 		fileMenu.add(exitItem);
-		// ex
 
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		exitItem.setMnemonic(KeyEvent.VK_X);

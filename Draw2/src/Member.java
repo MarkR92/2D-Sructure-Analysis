@@ -16,7 +16,7 @@ public class Member{
 	int vs,hs,rs;			//vertical,horizontal and rotational start node index
 	int ve,he,re;			//vertical,horizontal and rotational end node index
 	
-	private int number;
+	private int number;		//Member number
 	private int dof;
 	
 	
@@ -159,6 +159,7 @@ public class Member{
 	}
 	
 	public double[][] getLocalKPrime() {
+		
 		double E = getE();
 		double A = getA();
 		double L = getLength();
@@ -177,7 +178,6 @@ public class Member{
 				{		0,	 (6*E*I)/lpow2,		(2*E*I)/L,		   0,    -(6*E*I)/lpow2,	    (4*E*I)/L}	
 		};
 		
-		//System.out.println(k[0][0]);
 		return k;
 	}
 	
@@ -213,7 +213,7 @@ public class Member{
 	}
 	
 	public double[][] getLocalK() {
-	//	this.k =k;
+
 		double[][] k = getLocalKPrime();
 		double[][] b = getBeta();
 		double[][] bt = getBetaT();
@@ -379,15 +379,17 @@ public void lineBoundx(int xi) {
 	
 	
 	public Graphics2D drawBeam(Graphics2D g2d) {
-		//int l = getLength();
+		
 		AffineTransform old = g2d.getTransform();
 	    Color prevColor = g2d.getColor();
-	   // g2d.drawString(number + "", x + radius, y + radius);//draw the number of node
+	  
 	    g2d.setColor(color);
 	    if (highlighted || selected) {
 	    	color = Color.RED;
-	    	//g2d.drawString(String.valueOf(getLength()), (int)getMidPoint().getX(),(int)getMidPoint().getY()-20);
 	    	
+	    	g2d.rotate((getAngle()),getMidPoint().getX(),getMidPoint().getY());
+	    	g2d.drawString(String.valueOf(getLength()), (int)getMidPoint().getX()-8,(int)getMidPoint().getY()-10);
+	    	g2d.setTransform(old);
 	    	
 	    }else {
 	    	color= Color.BLUE;
@@ -395,16 +397,7 @@ public void lineBoundx(int xi) {
 	 
 	    g2d.drawLine(x1,y1,x2,y2);
 	    
-	//	color= Color.DARK_GRAY;
-	   
-	 
-	    g2d.rotate((getAngle()),getMidPoint().getX(),getMidPoint().getY());
-	    
-	    g2d.drawString(String.valueOf(getLength()), (int)getMidPoint().getX()-8,(int)getMidPoint().getY()-10);
-	    
-	 //   g2d.drawRect(x2, y2, (int) getLength()*2*10, 10);
-	    
-	    g2d.setTransform(old);
+	   // g2d.setTransform(old);
 		
 	    g2d.rotate((getAngle()),getMidPoint().getX(),getMidPoint().getY());
 	    

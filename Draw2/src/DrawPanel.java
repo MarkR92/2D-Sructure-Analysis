@@ -46,7 +46,7 @@ public class DrawPanel extends JPanel {
 	
 	private double[] R;
 	
-	public ArrayList<Element> element = new ArrayList<>();
+	//public ArrayList<Element> element = new ArrayList<>();
 	
 	private Dimension preferredSize=(new Dimension(600,600)) ;   
 	
@@ -330,9 +330,7 @@ public class DrawPanel extends JPanel {
         
     }
     
-    public int getBeamdof() {
-    	//beams.size();
-    	//int dof = beams.size()*3;
+    public int getMemberDOF() {
     	
     	return dof;
     
