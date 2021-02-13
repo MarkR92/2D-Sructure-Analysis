@@ -11,8 +11,6 @@ public class FixtureType {
 	
 	public ArrayList<Integer> FixtureList = new ArrayList<>(); 
 
-	
-
 public void Fixed() {
 	
 	x=0;

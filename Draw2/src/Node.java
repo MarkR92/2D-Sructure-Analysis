@@ -178,11 +178,14 @@ boolean isHighlighted() {
     return highlighted;
 }
 
-int getNumber() {
+public int getNodeNumber() {
 
     return number;
 }
-
+public int setNodeNumber(int number) {
+this.number = number;
+    return number;
+}
 public Point getMidPoint() {
 	
 	//System.out.println(x1-x2);

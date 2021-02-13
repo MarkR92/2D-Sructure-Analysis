@@ -1,108 +1,98 @@
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
 public class Reactions {
 	
-	private int dof;
-	private int reduceddof;
+	private int dof;							//Degree of freedom for the structure.
+	private int reduceddof;						//Degree of freedom for the structure once boundary conditions are accounted for.
+	private double reaction_a;					//Reaction force of the lowest number node of a member.
+	private double reaction_b;					//Reaction force of the highest number node of a member.
+	private double momentreaction_a;			//Moment reaction force of the lowest number node of a member.
+	private double momentreaction_b;			//Moment reaction force of the highest number node of a member.
+	private double[] globalForceVector;
+	private double[] globalF ;
+	private double[] globalQ  ;
+	private double[] R;
+	private double[] Rlocal;
+	private double[] localFV;
+	private double[] reduced;
+	
+	public ArrayList<double[]> shearResults = new ArrayList<double[]>();
+	
 	
 	Reactions(int dof, int reduceddof) {
+		
 		   this.dof = dof;
 		   this.reduceddof = reduceddof;
 		    
 		}
 	
-	double Ra;
-	double Rb;
-	double Ma;
-	double Mb;
-	
-	double[] globalForceVector;
-	private double[] globalF ;
-	private double[]  globalQ  ;
-	private double[] R;
-	private double[] localFV;
-	
-	private double[] reduced;
-	
-	private String direction;
-	
-	
-	public void calculateMemberReaction(double P, String Type, double L, Point forcelocation, int x1, int x2, int y1, int y2) {
+	public void calculateMemberReaction(double P, String forcetype, double L, Point forcelocation, int x1, int x2, int y1, int y2) {
 		
 		double a = Math.abs(forcelocation.getX()-x2)/10/2;
 		double b = Math.abs(forcelocation.getX()-x1)/10/2;
-		
 		
 		if(a+b == 0) {
 			
 			 a = Math.abs(forcelocation.getY()-y2)/10/2;
 			 b = Math.abs(forcelocation.getY()-y1)/10/2;
 		}
-		
-		
+
 		double a2 = Math.pow(a, 2);
 		double b2 = Math.pow(b, 2);
 		
 		double L2 = Math.pow(L, 2);
 		double L3 = Math.pow(L, 3);
 		
-
-		if(Type == "Point") {
+		if(forcetype == "Point") {
 			
-		 Ra = (P*b2*(3*a+b))/L3;
-		 Rb = (P*a2*(a+b*3))/L3;
+		reaction_a = (P*b2*(3*a+b))/L3;
+		reaction_b = (P*a2*(a+b*3))/L3;
 		
-		 Ma =  (P*b2*a)/L2;
-		 Mb = -(P*b*a2)/L2;
+		momentreaction_a =  (P*b2*a)/L2;
+		momentreaction_b = -(P*b*a2)/L2;
 		
 		}
 		
-		if(Type == "UDL") {
+		if(forcetype == "UDL") {
 			
-			 Ra = (P*L)/2;
-			 Rb = (P*L)/2;
+			reaction_a = (P*L)/2;
+			reaction_b = (P*L)/2;
 			 
-			 Ma = (P*L2)/12;
-			 Mb = -(P*L2)/12;
+			momentreaction_a = (P*L2)/12;
+			momentreaction_b = -(P*L2)/12;
 			 
 			}
 		
-		if(Type == "Moment") {
+		if(forcetype == "Moment") {
 			
-			Ra = (6*P*a*b)/L3;
-			Rb = (6*P*a*b)/L3;
+			reaction_a = (6*P*a*b)/L3;
+			reaction_b = (6*P*a*b)/L3;
 			
-			Ma=P*b*(2*a-b)/L2;
-			Mb=P*a*(2*b-a)/L2;
+			momentreaction_a = P*b*(2*a-b)/L2;
+			momentreaction_b = P*a*(2*b-a)/L2;
 			
 		}
-		//memberReactionVector();
 		
 	}
 	
-	
-
 	 public double[] memberReactionVector() { 
 		 
 		double[] localq= new double[6];
 		for(int i=0;i< 6;i++) {
-			localq[i]=0;
+			//localq[i]=0;
 		}
 		 
-		localq[1] = Ra;
-		localq[2] = Ma;
+		localq[1] = reaction_a;
+		localq[2] = momentreaction_a;
 		
-		localq[4] = Rb;
-		localq[5] = Mb;
+		localq[4] = reaction_b;
+		localq[5] = momentreaction_b;
 		
 		for(int i=0;i< localq.length;i++) {
-			//System.out.print(localq[i] + " q ");
+			System.out.print(localq[i] + " q ");
 		}
-		//System.out.println();
+		System.out.println();
 		
 		return localq;
 
@@ -148,7 +138,7 @@ public class Reactions {
 public void globalForce(double[][] BetaInv, double[]Force) {
 	
 	globalForceVector = new double[6];
-	
+	double[] force =memberReactionVector();
 
 	for(int i=0;i<6;i++) {
 		globalForceVector[i]=0;
@@ -158,15 +148,16 @@ public void globalForce(double[][] BetaInv, double[]Force) {
 			
 			//for(int z=0;z<6;z++) {
 				
-				globalForceVector[i]+=((BetaInv[i][j]*Force[j]));
+				globalForceVector[i]+=((BetaInv[i][j]*force[j]));
 				
+				//System.out.print(force[i] + " g ");
 			//}
 }
-		//System.out.print(globalForceVector[i] + " g ");
+		System.out.print(globalForceVector[i] + " g ");
 		
 		//System.out.println();	
 	}
-	//System.out.println();	
+	System.out.println();	
 }
 
 public double[] getGlobalForce() {
@@ -183,69 +174,14 @@ private ArrayList<double[]> localFlist = new ArrayList<double[]>() ;
 public void blowupLocalMemberForceVector( double[] localFPrime, int[] beamNumber) {
 
 
-//	localK = new double[dof][dof]; 								//create zero matrix based on dof
-//	
-//	for(int i=0;i<6;i++) {
-//		
-//		 indexI = nodeNumber[i]-1;
-//		 
-//		for(int j=0;j<6;j++) {
-//			
-//			indexJ = nodeNumber[j]-1;
-//			
-//			localK[indexI][indexJ]+= localkPrime[i][j];
-//			
-//		}
-//		
-//	}
-	//System.out.println(beamNumber);
-	
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  localFV = new double[dof]; //create zero matrix based on dof
-//	
-//	for ( int i=0; i< beamNumber.length; i++) {	
+
  for ( int i=0; i< 6; i++) {	
 	 index= beamNumber[i]-1 ;
 	 
 	 localFV[index]+= localFPrime[i];
  }
-//		
-//		// index = nodeNumber[i];	//each node will have a row and col in the stiffness matrix 
-//		index= beamNumber[i] ;
-//		
-//	System.out.println(index+"index");
-//		
-//		
-////		 if (index==0) {  // intial localkPrime(nodes 1 and 2 added to positions 0 and 1)	
-////				
-////			 index=0;											
-////		 }	
-////		 if (index==1) {  // intial localkPrime(nodes 1 and 2 added to positions 0 and 1)	
-////											
-////			 index=3;											
-////		 }													
-//	}
-//	 index=(index-2)*3;
-//
-//	for(int i=0+index;i<6+index;i++) {
-//		  
-//		
-//				
-//				localFV[i]+= localFPrime[i-index]; // add local matrix to zero matrix 
-//		
-//			
-//	System.out.print(localFV[i] +"   ");	
-//	  }
-//	System.out.println( );
-//	
-//	localFlist.add(localFV);	
-//	
-//	for(int i=0;i<dof;i++) {
-//
-////System.out.print(localFV[i] +" FV  ");	
-//}
-////System.out.println( );
-//
+
 
 
 
@@ -257,9 +193,6 @@ public ArrayList<double[]> getlocalFlist(){
 	return localFlist;
 	
 }
-
-
-
 
 public void addLocalMemberForces(double[] tempForceF) {
 	
@@ -460,17 +393,31 @@ public double[] getReducedForceVector() {
 	
 	return reduced;
 }
+
 public void calculateLocalReactions(double[][] Klocal, double[] Ulocal) {
-	double[] Rlocal = new double[6];
+	 Rlocal = new double[6];
 	
 	for (int row =0; row<6;row++) {
 		for(int col = 0; col<6; col++) {
 	
-		Rlocal[row] += Klocal[row][col]*Ulocal[col];
+		Rlocal[row] += (Klocal[row][col]*Ulocal[col])/1000/1000;
+		//System.out.print(Klocal[row][col] + "  ");
 		}
+		//System.out.println(" ");	
+		
 	}
+	for (int row =0; row<6;row++) {
+		//System.out.println(Rlocal[row]);
+	}
+	//return Rlocal;
+	//shearResults.add(Rlocal);
 }
-public  double[] calculateGlobalReaction(double[][] K, double [] U) {
+public double[] getLocalReactions() {
+	
+	return Rlocal;
+}
+
+public double[] calculateGlobalReaction(double[][] K, double [] U) {
 	
 	double[] R = new double[dof];
 	
@@ -509,19 +456,19 @@ public double[] setReactions(double R[]) {
 
 public double getRa() {
 	 
-	 return Ra;
+	 return reaction_a;
 }
 public double getRb() {
 	 
-	 return Rb;
+	 return reaction_b;
 }
 public double getMa() {
 	 
-	 return Ma;
+	 return momentreaction_a;
 }
 public double getMb() {
 	 
-	 return Mb;
+	 return momentreaction_b;
 }
 
 

@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 public class CreateGlobalMatrix {
 	
-	private int dof;  //degree of freedom determines global matrix size
-	private int reduceddof;
+	private int dof;  					//degree of freedom determines global matrix size
+	private int reduceddof;				//dof after boundary conditions are applied
 	private int index;
 	private int indexI;
 	private int indexJ;
@@ -62,15 +62,17 @@ public class CreateGlobalMatrix {
 	public void blowupLocalk2( double[][] localkPrime, int[] nodeNumber) {
 
 		localK = new double[dof][dof]; 								//create zero matrix based on dof
-		
+		System.out.println(dof);
 		for(int i=0;i<6;i++) {
 			
 			 indexI = nodeNumber[i]-1;
-			 
+			
 			for(int j=0;j<6;j++) {
 				
 				indexJ = nodeNumber[j]-1;
 				
+				 System.out.println(indexI +"i");
+				 System.out.println(indexI +"j");
 				localK[indexI][indexJ]+= localkPrime[i][j];
 				
 			}

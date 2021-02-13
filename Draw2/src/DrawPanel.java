@@ -43,6 +43,8 @@ public class DrawPanel extends JPanel {
 	
 	public ArrayList<DrawReactions> drawreactions = new ArrayList<>();
 	public ArrayList<DrawDisplacement> drawdisplacement = new ArrayList<>();
+	public ArrayList<DrawShear> drawshear = new ArrayList<>();
+	public ArrayList<double[]> shearresults = new ArrayList<double[]>();
 	
 	private double[] R;
 	
@@ -58,6 +60,7 @@ public class DrawPanel extends JPanel {
 	private int tranx=0;
 	private int trany=0;
 	private boolean result;
+	private boolean refresh;
 	
 	
 	    int vpw =(int) (600*scale);//viewport width
@@ -220,10 +223,28 @@ public class DrawPanel extends JPanel {
     	
     }
     
+    public void addShear(DrawShear drawShear) {
+    	
+    	drawshear.add(drawShear);
+    	
+    }
+    
+    public void addShearResults(double[] shearresults) {
+    	
+    	this.shearresults.add(shearresults);
+    	
+    }
+    
+    public ArrayList<double[]> getShearResults() {
+    	
+    	return shearresults;
+    	
+    }
+    
     public void changeFixture(String fixture , Node n) {
     	
     	if( n.isSelected() ) {
-    	fixtures.set(n.getNumber()-1, fixture);
+    	fixtures.set(n.getNodeNumber()-1, fixture);
     	n.setSelected(false);
     	
     	}
@@ -346,7 +367,7 @@ public class DrawPanel extends JPanel {
     	//beams.size();
     	this.nodenum=nodenum;
     	//int dof = beams.size()*3;
-    //	beamendList();
+    System.out.println(nodenum);
     	return nodenum;
     
     }
@@ -399,6 +420,14 @@ public class DrawPanel extends JPanel {
     	
     }
     
+	public boolean setRefresh(boolean refreshed) {
+		return this.refresh=refreshed;
+	}
+	public boolean isRefreshed() {
+		
+		return refresh;
+		
+	}
 	
     int count4 = 0;
     @Override
@@ -445,37 +474,33 @@ public class DrawPanel extends JPanel {
 				//System.out.println(x.get(i));
 				
 				
-		//}
-	//}
-		//g2d.scale(scale, scale);
-		//repaint();
-		//TempMember temp = new TempMember();
+	
         for (Node node : nodesfilterd) {
-        	
-        	//TempMember temp = new TempMember(node.getCoord());
-        	for (int i = 0; i<= fixtures.size()-1; i++) {
-        	
+
+        	//for (int i = 0; i<= fixtures.size()-1; i++) {
+        		//System.out.println(fixtures.size()-1);
         			node.drawNode(g2d);
-        		//	temp.drawTemp(g2d);
-        		 if(fixtures.get(node.getNumber()-1)=="Pinned" ){
-        			 
+        	
+        			if(fixtures.get(node.getNodeNumber()-1).matches("Pinned") ){
+        			
         			node.drawFixturePinned(g2d);
         			
         		}
-        		 if(fixtures.get(node.getNumber()-1)=="Fixed" ){
-        			 
+        		 if(fixtures.get(node.getNodeNumber()-1).matches("Fixed") ){
+        			// System.out.println("here2");
          			node.drawFixtureFixed(g2d);
          		}
-        		 if(fixtures.get(node.getNumber()-1)=="Sliding" ){
+        		 if(fixtures.get(node.getNodeNumber()-1).matches("Sliding") ){
         			 
           			node.drawFixtureSliding(g2d);
-          		}
+          		//}
         	}
         	 for (Forces force:forces) {
-        		 if (node.getNumber() == force.getNumber() && force.getType()=="Point") {
+        		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Point")) {
+        			 //System.out.println("hereforce2");
      				force.drawPointLoad(g2d);
 				 }
-        		 if (node.getNumber() == force.getNumber() && force.getType()=="Moment") {
+        		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Moment")) {
         				force.drawMoment(g2d);
   				 }
         		 
@@ -489,18 +514,17 @@ public class DrawPanel extends JPanel {
             	for (Member member :members) {
             		
             	member.drawBeam(g2d);
-            	//beam.drawBeamLength(g2d);
-            	//temp.drawTemp(g2d);
+           
        			 count4++;
        			 for (Forces force:forces) {
        		
-       				 if (member.getNumber() == force.getNumber() && force.getType()=="Point") {
+       				 if (member.getNumber() == force.getNumber() && force.getType().matches("Point")) {
       				force.drawPointLoad(g2d);
 				 }
-       				 if (member.getNumber() == force.getNumber() && force.getType()=="UDL") {
+       				 if (member.getNumber() == force.getNumber() && force.getType().matches("UDL")) {
            				force.drawUDL(g2d, member);
      				 }
-       				if (member.getNumber() == force.getNumber() && force.getType()=="Moment") {
+       				if (member.getNumber() == force.getNumber() && force.getType().matches("Moment")) {
            				force.drawMoment(g2d);
      				 }
        				
@@ -514,6 +538,9 @@ public class DrawPanel extends JPanel {
             	}
             	for (DrawDisplacement drawdisplacement:drawdisplacement) {
             		drawdisplacement.drawDisplacments(g2d);
+            	}
+            	for (DrawShear drawshear:drawshear) {
+            		drawshear.drawShear(g2d);
             	}
             	
             	//TempMember tempmember = new TempMember();
@@ -533,13 +560,23 @@ public class DrawPanel extends JPanel {
      public void saveToFile(File file ) throws IOException {
     	 FileOutputStream  fos = new FileOutputStream(file) ;
     	 ObjectOutputStream  oos = new ObjectOutputStream(fos) ;
+    	
+    	
+
+    	 Node[] node = nodesfilterd.toArray(new Node[nodesfilterd.size()]);
+    	 String[] fixture = fixtures.toArray(new String[fixtures.size()]);
     	 
-    	// Node[] nodea = nodes.toArray(new node(nodes.size()));
-    	 Node[] n = nodes.toArray(new Node[nodes.size()]);
+    	
+    	 Member[] member = members.toArray(new Member[members.size()]);
+    	 Forces[] force = forces.toArray(new Forces[forces.size()]);
     	 
-    	 System.out.println(getNodes().size() );
-    	 oos.writeObject(n);
-    	 
+    	// public ArrayList<Forces> forces = new ArrayList<>();
+    	// System.out.println(forces.get(0).getType());
+    	 oos.writeObject(node);
+    	 oos.writeObject(fixture);
+    	 oos.writeObject(member);
+    	oos.writeObject(force);
+    	
     	 oos.close();
     	 fos.close();
      }
@@ -547,26 +584,43 @@ public class DrawPanel extends JPanel {
      public void loadFromFile(File file ) throws IOException {
     	 FileInputStream  fis = new FileInputStream(file) ;
     	 ObjectInputStream  ois = new ObjectInputStream(fis) ;
-    	 
-    	// Node[] nodea = nodes.toArray(new node(nodes.size()));
-    	 //Node [] n = nodes.toArray(new Node[nodes.size()]);
+    	
     	 
     	
     	 try {
-			Node[] n= (Node[]) ois.readObject();
+			Node[] node= (Node[]) ois.readObject();
+			String[] fixture= (String[]) ois.readObject();
+			Member[] member= (Member[]) ois.readObject();
+			Forces[] force = (Forces[]) ois.readObject();
 			
 			nodes.clear();
-			nodes.addAll(Arrays.asList(n));
+			nodesfilterd.clear();
+			fixtures.clear();
+			members.clear();
+			forces.clear();
 			
-			//System.out.println(n);
+			nodesfilterd.addAll(Arrays.asList(node));
+			fixtures.addAll(Arrays.asList(fixture));
+			members.addAll(Arrays.asList(member));
+			forces.addAll(Arrays.asList(force));
+			setRefresh(true);
+			
+			
+			
+			//System.out.println(members.size());
+			
+			 
+			 repaint();
+			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	 repaint();
-    	 System.out.println(nodes);
+    	
+    	
     	 ois.close();
-    	 repaint();
+    	 fis.close();
+    	
      }
             	
      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////      	

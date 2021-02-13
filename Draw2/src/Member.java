@@ -5,10 +5,16 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
+import java.io.Serializable;
 
 
-public class Member{
+public class Member implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6063226332124518632L;
+
 	int x1,x2,y1,y2;		//Member start and end node location
 	
 	int start,end;			//Member start and end node number
@@ -48,7 +54,14 @@ public class Member{
 	   this.dof = dof;
 	    
 	}
-	
+	 public int setStart(int start) {
+		 this.start=start;
+		 return start;
+	 }
+	 public int setEnd(int end) {
+		 this.end=end;
+		 return end;
+	 }
 	public int getNodeNumber() {
 		
 		return nodenum;

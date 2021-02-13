@@ -5,10 +5,16 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
+import java.io.Serializable;
 
 
 
-public class Forces {
+public class Forces implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1870926992857609535L;
 
 	private double magnitude;
 	
@@ -101,7 +107,7 @@ public class Forces {
 	public void drawPointLoad(Graphics2D gp) {
 	getLocation();
 	//JLabel label = new JLabel(" ");
-	if(direction2 == "Parallel") {
+	if(direction2.matches("Parallel")) {
 			rotation= -Math.PI/2;
 		}
 	 		if (direction == "Up") {
@@ -134,7 +140,7 @@ public class Forces {
 	 	
 	 	}
 	 	
-		if (direction == "Down") {
+		if (direction.matches("Down")) {
 			
 			AffineTransform old = gp.getTransform();
 			
@@ -182,7 +188,7 @@ public class Forces {
 	
 	public void drawUDL(Graphics2D g,Member b) {
 		getLocation();
-			if (direction == "Down") {
+			if (direction.matches("Down")) {
 			AffineTransform old = g.getTransform();
 		
 		 	g.setColor( Color.GREEN);
@@ -231,7 +237,7 @@ public class Forces {
 			
 		}
 			
-		if (direction == "Up") {
+		if (direction.matches("Up") ) {
 			
 			AffineTransform old = g.getTransform();
 
@@ -286,7 +292,7 @@ public class Forces {
 		getLocation();
 		//System.out.println("here");
 		
-		if (direction == "Up") {
+		if (direction.matches("Up") ) {
  			
  			AffineTransform old = gm.getTransform();
 			
@@ -316,7 +322,7 @@ public class Forces {
  	
  	}
  	
-	if (direction == "Down") {
+	if (direction.matches("Down")) {
 		
 		AffineTransform old = gm.getTransform();
 		
@@ -345,7 +351,7 @@ public class Forces {
 	public Shape getPointBounds() {
 		
 		getLocation();
-		if (direction == "Up") {
+		if (direction.matches("Up")) {
 			//System.out.println(location.getX() +" , " +location.getY());
 		Double rect = new Rectangle2D.Double(location.getX()-5, location.getY(), 10,30);
 		AffineTransform at = AffineTransform.getRotateInstance(angle+rotation, location.getX(), location.getY());

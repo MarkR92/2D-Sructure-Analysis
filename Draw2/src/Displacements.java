@@ -2,12 +2,12 @@ import java.util.ArrayList;
 
 public class Displacements {
 	
-	public double[][] K = new double [3][3]; // Stiffness Matrix
-	public double[] F = new double [3];	//Force Vector
-	public double [] U;	//Displacement Vector
+	public double[][] K = new double [3][3]; 	//Stiffness Matrix
+	public double[] F = new double [3];			//Force Vector
+	public double [] U;							//Displacement Vector
 	private double[] Uglobal;
 	private double[] Ulocal;
-	
+	private double[] Ulocalprime;
 	private int reduceddof;
 	private int dof;
 	
@@ -124,8 +124,10 @@ public class Displacements {
 	public double[] getDisplacmentVector() {
 		return Uglobal;
 	}
-	public void localDeflections(int beamnumber) {
+	public double[] localDeflections(int beamnumber, double[][] beta) {
 		Ulocal = new double[6];
+		Ulocalprime=new double[6];
+		
 		int j = 0;
 		//System.out.println(beamnumber);
 		for (int i=beamnumber*3;i<6; i++) {
@@ -133,10 +135,22 @@ public class Displacements {
 		j++;
 		}
 		
-		for (int i =0; i<6;i++) {
-			//System.out.println(Ulocal[i] + "L ");
+		for(int i=0;i<6;i++) {
+			for(int k=0;k<6;k++) {
+				
+				//Ulocalprime[i]=0;
+				
+				//for(int z=0;z<6;z++) {
+					
+					Ulocalprime[i]+=((beta[i][k]*Ulocal[k]));
+				//}
 			}
-		//System.out.println();
+		}
+		for (int i =0; i<6;i++) {
+		//	System.out.println(Ulocalprime[i] + "L ");
+			}
+		System.out.println();
+		return Ulocalprime;
 	}
 	
 }
