@@ -14,8 +14,9 @@ public class DrawShear {
 	private int number;
 	private double angle;
 	private int x1,x2,y1,y2;
+	private double slope;
 	
-	DrawShear(double Rlocal[],Point beamstart,Point beamend, int membernumber,double angle, Point midpoint){
+	DrawShear(double Rlocal[],Point beamstart,Point beamend, int membernumber,double angle, Point midpoint, double slope){
 		
 		this.Rlocal=Rlocal;
 		this.beamstart=beamstart;
@@ -23,6 +24,9 @@ public class DrawShear {
 		this.number=membernumber;
 		this.angle=angle;
 		this.midpoint=midpoint;
+		this.slope=slope;
+		
+		//calculateYintercept();
 	}
 	
 	public void drawShear(Graphics2D g2d) {
@@ -36,12 +40,12 @@ public class DrawShear {
 			//U[i]=U[i]*1000;
 			Rlocal[i]=Math.round(Rlocal[i] * 100.0) / 100.0;
 			
-			System.out.println(Rlocal[i]+"Rlocal");
+			//System.out.println(Rlocal[i]+"Rlocal");
 			
 			
 		}
 		
-		System.out.println(angle);
+		//System.out.println(angle);
 		
 		//for(int i=0; i<2; i++) {
 			
@@ -53,8 +57,9 @@ public class DrawShear {
 	
 			//g2d.translate(0, -(int)Rlocal[j]*5);
 			if(angle==0) {
-				g2d.translate(0, -(int)Rlocal[j]*5);
-				g2d.drawLine(beamend.x, beamend.y, beamstart.x, beamstart.y);
+				//g2d.translate(0, -(int)Rlocal[j]*5);
+			
+				//g2d.drawLine(beamend.x, beamend.y, beamstart.x, beamstart.y);
 				g2d.setTransform(old);
 			}else {
 				
@@ -65,7 +70,7 @@ public class DrawShear {
 				g2d.rotate((angle),(beamend.x),(beamend.y-(int)Rlocal[j]*5));
 				//g2d.translate( (int)Rlocal[j]*5*2,0);
 				//g2d.translate( (int)Rlocal[j]*5,0);
-			//	g2d.drawLine(beamend.x, beamend.y, beamstart.x, beamstart.y);
+				
 				
 			}
 			
@@ -82,10 +87,11 @@ public class DrawShear {
 			g2d.rotate((angle),(beamend.x),(beamend.y));
 			
 			g2d.drawLine(beamend.x, beamend.y, beamend.x, beamend.y-(int)Rlocal[j]*5);
+			g2d.drawLine(beamend.x, beamend.y-(int)Rlocal[j]*5, beamstart.x, beamend.y-(int)Rlocal[j]*5);
+			
 			
 			g2d.setTransform(old);
-		x1=	(int)g2d.getTransform().getTranslateX();
-		y1= (int)g2d.getTransform().getTranslateY();
+	
 			
 		}
 		
@@ -100,18 +106,19 @@ public class DrawShear {
 		
 	
 			g2d.drawLine(beamstart.x, beamstart.y, beamstart.x, beamstart.y+(int)Rlocal[j]*5);
-			
+			g2d.drawLine(beamstart.x, beamstart.y+(int)Rlocal[j]*5, beamend.x, beamstart.y+(int)Rlocal[j]*5);
 
-			g2d.setTransform(old);
-			x2=	(int)g2d.getTransform().getTranslateX();
-			y2= (int)g2d.getTransform().getTranslateY();
 			
+			
+			g2d.setTransform(old);
+		
+			//g2d.drawLine(x1, y1, x2, y2);
 		}
 		
 		
 		//g2d.drawLine(x1, y1, x2, y2);
 		}
-			g2d.drawLine(x1, y1, x2, y2);
+		//	g2d.drawLine(x1, y1, x2, y2);
 			
 	}
 }

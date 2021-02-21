@@ -22,7 +22,7 @@ private  int number;
 private boolean selected;
 private boolean highlighted;
 private boolean toAdd;
-
+private int dof;
 //private Point coord;
 private int count;
 
@@ -197,9 +197,14 @@ public Point getMidPoint() {
 	return midpoint;
 }
 public int getDOF() {
-	int dof = (number)*3;
-	
+	 dof = (number)*3;
+	System.out.println(dof);
 	return dof;
+}
+
+public int setDOF(int dof) {
+
+	return this.dof= dof;
 }
 
 

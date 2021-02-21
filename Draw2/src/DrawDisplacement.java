@@ -3,9 +3,14 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.io.Serializable;
 
-public class DrawDisplacement {
+public class DrawDisplacement implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2413528826466860705L;
 	private double U[];					//Displacement vector
 	private Point beamstart;
 	private Point beamend;

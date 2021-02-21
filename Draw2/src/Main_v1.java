@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,11 +27,15 @@ public class Main_v1 extends JFrame{
 	
 	private Toolbar toolbar;
 	private DrawPanel drawPanel;
+	private LabelPanel labelPanel;
 	private FixturePopupPanel fixturepane;
 	private ForcePopupPanel forcepane;
 	private ResultPopupPanel resultpane;
 	private FixtureType fixturetype;
 	private JFileChooser fileChooser;
+	private Refresh refresh;
+	private File currentfile;
+	private MenuBar menubar;
 	
 	private double R[];
 	private double U[];
@@ -49,33 +54,106 @@ public class Main_v1 extends JFrame{
 
 		toolbar = new Toolbar();
 		drawPanel = new DrawPanel();
+		menubar = new MenuBar();
+		labelPanel = new LabelPanel();
 		fixturetype = new FixtureType();
 		fileChooser = new JFileChooser();
 		fileChooser.addChoosableFileFilter(new StructureFileFilter());
 		fixturetype.Free(); //all nodes start free
 		
 		JFrame frame = new JFrame(); // Instance of a JFrame
-		JLabel label = new JLabel(" "); // Instance of a JLabel
 		
+		//JLabel currentfile = new JLabel("Loaded: ");
 		frame.setSize(800, 800);
 		
 		frame.add(drawPanel);
 	    
 	
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	
 		frame.add(toolbar, BorderLayout.NORTH); // add tool-bar
-
-		frame.setJMenuBar(createMenuBar()); // add menu-bar
+		frame.add(labelPanel, BorderLayout.SOUTH);
+		//frame.add(menubar,BorderLayout.NORTH);
+		frame.setJMenuBar(menubar); // add menu-bar
 		
 		drawPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
+		if(drawPanel.isRefreshed()==true) {
+		  refresh = new Refresh();
 		
+		}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-		toolbar.setToolBarListener(new ToolBarListener() {			//Listen for a button on the toolbar to be pressed
-			@Override
-			public void stringEmitted(String result) { 				//result from tool-bar button
+	menubar.setMenuBarListener(new MenuBarListener() {
+				
+		@Override
+		public void stringEmitted(String result) {
 			
+			System.out.println(result);
+			if (result == "New") { 
+		
+
+				
+			}
+			if (result == "Open") { 
+				
+				if (fileChooser.showOpenDialog(Main_v1.this) == JFileChooser.APPROVE_OPTION) {
+					
+					try {
+						loadFromFile(fileChooser.getSelectedFile());
+						labelPanel.setLoadedLabelText(fileChooser.getSelectedFile().getName());
+						
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(Main_v1.this, "Could not Load", "Error", JOptionPane.ERROR_MESSAGE);;
+					}
+					
+				}
+				drawPanel.repaint();
+				
+			}
+			if (result == "Save") { 
+				
+				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
+				try {
+					saveToFile(getLoadedFile());
+					//System.out.println(fileChooser.getSelectedFile());
+				} catch (IOException e1) {
+					JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
+				}
+			}
+			
+			
+		
+				
+			}
+			if (result == "SaveAs") { 
+				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
+					try {
+						saveToFile(fileChooser.getSelectedFile());
+						//System.out.println(fileChooser.getSelectedFile());
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
+					}
+				}
+			}
+			if (result == "Exit") { 
+				int action = JOptionPane.showConfirmDialog(Main_v1.this, 
+						"Do you really want to close the application?",
+						"Confirm Exit", JOptionPane.OK_CANCEL_OPTION);
+				
+				if(action == JOptionPane.OK_OPTION) {
+					System.exit(0);	
+				}
+			}
+			
+		}
+		
+	});
+
+		toolbar.setToolBarListener(new ToolBarListener() {	//Listen for a button on the toolbar to be pressed
+			@Override
+			
+			public void stringEmitted(String result) { 				//result from tool-bar button
+			//System.out.println(result);
 				if (result == "Select") { 
 					
 					for (Node node : drawPanel.getNodes()) {
@@ -98,25 +176,31 @@ public class Main_v1 extends JFrame{
 					drawPanel.deleteReactions();
 					drawPanel.deleteDisplacements();
 					
+					
 					CreateGlobalMatrix globalK = new CreateGlobalMatrix(drawPanel.getMemberDOF());									//create dof by dof global matrix (globalK).
 					
 					double [][]TempGlobalK = new double[drawPanel.getMemberDOF()][drawPanel.getMemberDOF()];
 					double [][]TempGlobalK2 = new double[drawPanel.getMemberDOF()][drawPanel.getMemberDOF()];
 					
-					for (Member member : drawPanel.getMembers()) {																
-
-					globalK.blowupLocalk2(member.getLocalK(),member.getnodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
+					for (Member member : drawPanel.getMembers()) {		
+						
+						if(drawPanel.isRefreshed()==false) {
+							member.calculateNodeDOFList();
+						}
+					globalK.blowupLocalk2(member.getLocalK(),member.getNodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
 					
 					globalK.addLocalStiffness(TempGlobalK,TempGlobalK2);														 //add all globalk's together to create globalK
 					
 					}
 
 					globalK.reduceGlobalk(drawPanel.getFixtureType());															//reduce globalK depending on fixtures
-
-					Reactions reactions = new Reactions(drawPanel.getMemberDOF(), globalK.getreducedDOF());
+					
+					Reactions reactions = new Reactions(drawPanel.getMemberDOF(), globalK.getReducedDOF());
 					
 					CalculateInvMatrix invmatrix = new CalculateInvMatrix();
 					invmatrix.setN(6);
+					
+					
 					
 				
 					
@@ -127,11 +211,9 @@ public class Main_v1 extends JFrame{
 					for (Member member : drawPanel.getMembers()) {
 						
 					for (Forces force : drawPanel.getForces()) {
-					//System.out.println(b.getBounds().getCenterX()+","+b.getBounds().getCenterY());
-					//System.out.println(b.getBounds().getCenterY());
-					//System.out.println(f.getLocation());
+					
 						
-						if (member.getNumber() == force.getNumber() && force.getType()=="Point" && member.getbounds().contains(force.getLocation())) {
+						if (member.getNumber() == force.getNumber() && force.getType().matches("Point") && member.getbounds().contains(force.getLocation())) {
 						System.out.println("true");
 						
 							reactions.calculateMemberReaction(force.getMagnitude(),force.getType(), member.getLength(), force.getLocation(), member.x1, member.x2,member.y1,member.y2 );
@@ -146,7 +228,7 @@ public class Main_v1 extends JFrame{
 						    reactions.globalForce( inv, reactions.memberReactionVector());
 						    
 						   // reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
-						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getnodeDOFList());
+						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
 						    
 						}else {
 							reactions.calculateMemberReaction(0,force.getType(), member.getLength(), force.getLocation(), member.x1, member.x2,member.y1,member.y2 );
@@ -161,13 +243,13 @@ public class Main_v1 extends JFrame{
 						    reactions.globalForce( inv, reactions.memberReactionVector());
 						    
 						 //   reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
-						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getnodeDOFList());
+						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
 							
 							
 							
 						}
 						
-						if (member.getNumber()== force.getNumber() && force.getType()=="UDL") {
+						if (member.getNumber()== force.getNumber() && force.getType().matches("UDL")) {
 							
 							reactions.calculateMemberReaction((force.getMagnitude()),force.getType(), member.getLength(), force.getLocation(), member.x1, member.x2,member.y1,member.y2);
 						
@@ -183,7 +265,7 @@ public class Main_v1 extends JFrame{
 							    reactions.globalForce( inv, reactions.memberReactionVector());
 							    
 							   // reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
-							  reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getnodeDOFList());
+							  reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
 							
 							}
 						
@@ -202,14 +284,14 @@ public class Main_v1 extends JFrame{
 ////////////////////////////////////////////////////Node Forces////////////////////////////////////////////////////////						
 						for (Forces f : drawPanel.getForces()) {
 							
-							if (n.getNodeNumber() == f.getNumber() && f.getType()=="Moment") {
+							if (n.getNodeNumber() == f.getNumber() && f.getType().matches("Moment")) {
 
 								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getMemberDOF(),n.getNodeNumber(),TempForceQ,f.getType(),f.getDirection2());
 							}else {
 							//	reactions.nodeReactionVector((0),drawPanel.getBeamdof(),n.getNumber(),TempForceQ,f.getType(),f.getDirection2());
 								
 							}
-							if (n.getNodeNumber() == f.getNumber() && f.getType()=="Point" && f.getLocation().x == n.getMidPoint().x && f.getLocation().y == n.getMidPoint().y) {
+							if (n.getNodeNumber() == f.getNumber() && f.getType().matches("Point") && f.getLocation().x == n.getMidPoint().x && f.getLocation().y == n.getMidPoint().y) {
 							
 								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getMemberDOF(),n.getNodeNumber(),TempForceQ,f.getType(),f.getDirection2());
 							}else {
@@ -226,14 +308,14 @@ public class Main_v1 extends JFrame{
 					
 					//reactions.reduceForceVector(drawPanel.getFixtureType());
 			
-					if(globalK.getreducedDOF()!=0) {
+					if(globalK.getReducedDOF()!=0) {
 						
 					reactions.reduceForceVector(drawPanel.getFixtureType());
 						
-					double [][]adj = new double[globalK.getreducedDOF()][globalK.getreducedDOF()]; // To store adjoint of A[][] 
-				    double [][]inv = new double[globalK.getreducedDOF()][globalK.getreducedDOF()]; // To store inverse of A[][] 
+					double [][]adj = new double[globalK.getReducedDOF()][globalK.getReducedDOF()]; // To store adjoint of A[][] 
+				    double [][]inv = new double[globalK.getReducedDOF()][globalK.getReducedDOF()]; // To store inverse of A[][] 
 				    
-				    invmatrix.setN( globalK.getreducedDOF());
+				    invmatrix.setN( globalK.getReducedDOF());
 				 
 				    invmatrix.adjoint(globalK.getReducedK(), adj); 
 					 
@@ -241,7 +323,7 @@ public class Main_v1 extends JFrame{
 					    	
 					    }
 					   // g.get
-					    Displacements d = new Displacements( drawPanel.getMemberDOF(), globalK.getreducedDOF());
+					    Displacements d = new Displacements( drawPanel.getMemberDOF(), globalK.getReducedDOF());
 					    
 					    d.calculateDeflections(inv, reactions.getReducedForceVector());
 					  
@@ -274,8 +356,10 @@ public class Main_v1 extends JFrame{
 					
 					
 					if ( resultpane.getResultType() == "Reactions") {
+						
 						drawPanel.deleteReactions();
 						drawPanel.deleteDisplacements();
+						drawPanel.deleteShearDiagram();
 						
 						int nodecount = 0;
 						for(Node n:drawPanel.getFilteredNodes()) {
@@ -290,11 +374,11 @@ public class Main_v1 extends JFrame{
 						
 						drawPanel.deleteReactions();
 						drawPanel.deleteDisplacements();
-						
+						drawPanel.deleteShearDiagram();
 					
 						
 						for (Member member:drawPanel.getMembers()) {
-							drawPanel.addDisplacement(new DrawDisplacement(U, member.getMemberStart(),member.getMemberEnd(),member.getnodesList(),member.getnodeDOFList()));
+							drawPanel.addDisplacement(new DrawDisplacement(U, member.getMemberStart(),member.getMemberEnd(),member.getnodesList(),member.getNodeDOFList()));
 							
 						}
 					
@@ -303,18 +387,20 @@ public class Main_v1 extends JFrame{
 					if ( resultpane.getResultType() == "Shear Diagram") {
 						drawPanel.deleteReactions();
 						drawPanel.deleteDisplacements();
+						drawPanel.deleteShearDiagram();
 						
 						for (Member member:drawPanel.getMembers()) {
-							//Rlocal=reactions.calculateLocalReactions(member.getLocalKPrime(), d.localDeflections(member.getNumber(),member.getBeta()));
-					    	
-							drawPanel.addShear(new DrawShear(drawPanel.getShearResults().get(member.getNumber()), member.getMemberStart(),member.getMemberEnd(),member.getNumber(),member.getAngle(),member.getMidPoint()));
+							
+							drawPanel.addShear(new DrawShear(drawPanel.getShearResults().get(member.getNumber()), member.getMemberStart(),member.getMemberEnd(),member.getNumber(),member.getAngle(),member.getMidPoint(), member.getSlope()));
 							
 						}
 						
 						
 					}
 					if ( resultpane.getResultType() == "Bending Diagram") {
-						
+						drawPanel.deleteReactions();
+						drawPanel.deleteDisplacements();
+						drawPanel.deleteShearDiagram();
 					}
 					
 				}
@@ -586,8 +672,8 @@ public class Main_v1 extends JFrame{
 				//temp.setCurrent(me.getPoint());
 				//temp.getCurrent();
 				
-				label.setText("[" + ((double)me.getX()/10)/2 + " , " + ((double)me.getY()/10)/2 + "]");
-
+				
+				labelPanel.setCorordinateLabelText((double)me.getX(), (double)me.getY());
 
 
 				for (Node n : drawPanel.getFilteredNodes()) {// iterate through each node});
@@ -658,14 +744,14 @@ public class Main_v1 extends JFrame{
 		});
 
 		drawPanel.addMouseListener(new MouseAdapter() {
-	
+			
 			int count = 0;
 			int	count2 = 0;
 			
 			private int start;
 			private int end;
 			
-			CalculateNodeNumber currentnodenumber = new CalculateNodeNumber();
+			CalculateNodeNumber currentnodenumber = new CalculateNodeNumber(); //Keeps track of current nodenumber and how/if it will be modified.
 			
 			public void mousePressed(MouseEvent e) {
 			
@@ -678,7 +764,7 @@ public class Main_v1 extends JFrame{
 				}
 				
 				for (Member member : drawPanel.getMembers()) {
-					
+					member.calculateYintercept();
 					if (member.getbounds().contains(e.getPoint()) && !toolbar.isdrawing) {
 						if (!member.isSelected()) {// check if beam has been clicked on
 							member.setSelected(true);
@@ -749,7 +835,9 @@ public class Main_v1 extends JFrame{
 					for (Node node : drawPanel.getFilteredNodes()) { // check all nodes
 						
 						if(drawPanel.isRefreshed()==true) {
-				
+							//refresh.refreshDOF(dof);
+							//node.getDOF();
+							
 							currentnodenumber.setNodeNumber(drawPanel.getFilteredNodes().size()+1);
 							currentnodenumber.setOldNodeNumber(drawPanel.getFilteredNodes().size()+1);
 							
@@ -778,14 +866,6 @@ public class Main_v1 extends JFrame{
 					
 					drawPanel.setNodeNum(currentnodenumber.getNodeNumber());
 				
-				//System.out.println(drawPanel.getNodeNum());
-			//	FindNodeNumber currentnodenumber = new FindNodeNumber(nodenumber, oldnodenumber);
-				
-				
-//					if (oldnodenumber>nodenumber) {
-//						oldnodenumber--;
-//					}
-				//	nodenumber =currentnodenumber.getNodeNumber();
 					
 					count++;
 				
@@ -826,8 +906,6 @@ public class Main_v1 extends JFrame{
 
 					}
 
-					//nodenumber++;// increase the numberNode
-				//oldnodenumber++;
 						currentnodenumber.incrementNodeNumber();
 				}
 				
@@ -836,14 +914,7 @@ public class Main_v1 extends JFrame{
 			
 		});
 
-		//frame.add(drawPanel);
-
-		label.setLocation(100, 100);
-		label.setHorizontalAlignment(JLabel.RIGHT);
-
-		frame.add(label, BorderLayout.SOUTH);
-		// frame.add(draw);
-		//frame.pack();
+	
 
 		frame.setVisible(true);
 
@@ -857,100 +928,152 @@ public class Main_v1 extends JFrame{
 	public void loadFromFile (File file) throws IOException{
 		
 		drawPanel.loadFromFile(file);
-		
-		//Refresh refreshed = new Refresh();
-		//refreshed.refreshDOF(9);
+		setLoadedFile(file);
+	
 	}
-
-	private JMenuBar createMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
-
-		JMenu fileMenu = new JMenu("File");
-
-		JMenuItem newItem = new JMenuItem("New");
-		JMenuItem openItem = new JMenuItem("Open File...");
-		JMenuItem saveItem = new JMenuItem("Save");
-		JMenuItem saveasItem = new JMenuItem("Save As...");
-		JMenuItem exitItem = new JMenuItem("Exit");
-
-		fileMenu.add(newItem);
-		fileMenu.add(openItem);
-		fileMenu.addSeparator();
-		fileMenu.add(saveItem);
-		fileMenu.add(saveasItem);
-		fileMenu.addSeparator();
-		fileMenu.add(exitItem);
-
-		fileMenu.setMnemonic(KeyEvent.VK_F);
-		exitItem.setMnemonic(KeyEvent.VK_X);
+	
+	public void setLoadedFile(File file )throws IOException{
+		this.currentfile=file; 
 		
-		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
-		
-		openItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (fileChooser.showOpenDialog(Main_v1.this) == JFileChooser.APPROVE_OPTION) {
-					//System.out.println(fileChooser.getSelectedFile());
-					try {
-						loadFromFile(fileChooser.getSelectedFile());
-						drawPanel.repaint();
-					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(Main_v1.this, "Could not Load", "Error", JOptionPane.ERROR_MESSAGE);;
-					}
-					
-				}
-				drawPanel.repaint();
-				
-			}
-			
-		});
-		
-		saveItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
-					try {
-						saveToFile(fileChooser.getSelectedFile());
-						//System.out.println(fileChooser.getSelectedFile());
-					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
-					}
-				}
-				
-				
-			}
-			
-		});
-
-		exitItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int action = JOptionPane.showConfirmDialog(Main_v1.this, 
-						"Do you really want to close the application?",
-						"Confirm Exit", JOptionPane.OK_CANCEL_OPTION);
-				
-				if(action == JOptionPane.OK_OPTION) {
-					System.exit(0);	
-				}
-				
-
-			}
-
-		});
-		// fileMenu.addSeparator();
-
-		JMenu editMenu = new JMenu("Edit");
-		JMenu windowMenu = new JMenu("Window");
-
-		menuBar.add(fileMenu);
-		menuBar.add(editMenu);
-		menuBar.add(windowMenu);
-
-		return menuBar;
 	}
+	public File getLoadedFile()throws IOException{
+		return currentfile; 
+		
+	}
+	
+//	private JMenuBar createMenuBar() {
+//		JMenuBar menuBar = new JMenuBar();
+//
+//		JMenu fileMenu = new JMenu("File");
+//		JMenu editMenu = new JMenu("Edit");
+//		JMenu windowMenu = new JMenu("Window");
+//
+//		JMenuItem newItem = new JMenuItem("New");
+//		JMenuItem openItem = new JMenuItem("Open File...");
+//		JMenuItem saveItem = new JMenuItem("Save");
+//		JMenuItem saveasItem = new JMenuItem("Save As...");
+//		JMenuItem exitItem = new JMenuItem("Exit");
+//
+//		fileMenu.add(newItem);
+//		fileMenu.add(openItem);
+//		fileMenu.addSeparator();
+//		fileMenu.add(saveItem);
+//		fileMenu.add(saveasItem);
+//		fileMenu.addSeparator();
+//		fileMenu.add(exitItem);
+//
+//		fileMenu.setMnemonic(KeyEvent.VK_F);
+//		exitItem.setMnemonic(KeyEvent.VK_X);
+//		
+//		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+//		
+//		newItem.addActionListener(new ActionListener() {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
+//					try {
+//						drawPanel.clearDrawPanel();
+//						saveToFile(fileChooser.getSelectedFile());
+//						
+//						
+//						loadFromFile(fileChooser.getSelectedFile());
+//						labelPanel.setLoadedLabelText(fileChooser.getSelectedFile().getName());
+//						
+//					
+//						
+//					} catch (IOException e1) {
+//						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
+//					}
+//				}
+//				
+//			
+//				drawPanel.repaint();
+//			}
+//			
+//		});
+//		
+//		openItem.addActionListener(new ActionListener() {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				if (fileChooser.showOpenDialog(Main_v1.this) == JFileChooser.APPROVE_OPTION) {
+//					//System.out.println(fileChooser.getSelectedFile());
+//					try {
+//						loadFromFile(fileChooser.getSelectedFile());
+//						labelPanel.setLoadedLabelText(fileChooser.getSelectedFile().getName());
+//						
+//					} catch (IOException e1) {
+//						JOptionPane.showMessageDialog(Main_v1.this, "Could not Load", "Error", JOptionPane.ERROR_MESSAGE);;
+//					}
+//					
+//				}
+//				drawPanel.repaint();
+//				
+//			}
+//			
+//		});
+//		
+//		saveasItem.addActionListener(new ActionListener() {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
+//					try {
+//						saveToFile(fileChooser.getSelectedFile());
+//						//System.out.println(fileChooser.getSelectedFile());
+//					} catch (IOException e1) {
+//						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
+//					}
+//				}
+//				
+//				
+//			}
+//			
+//		});
+//		saveItem.addActionListener(new ActionListener() {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				//if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
+//					try {
+//						saveToFile(getLoadedFile());
+//						//System.out.println(fileChooser.getSelectedFile());
+//					} catch (IOException e1) {
+//						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
+//					}
+//				//}
+//				
+//				
+//			}
+//			
+//		});
+//		exitItem.addActionListener(new ActionListener() {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				int action = JOptionPane.showConfirmDialog(Main_v1.this, 
+//						"Do you really want to close the application?",
+//						"Confirm Exit", JOptionPane.OK_CANCEL_OPTION);
+//				
+//				if(action == JOptionPane.OK_OPTION) {
+//					System.exit(0);	
+//				}
+//				
+//
+//			}
+//
+//		});
+//		// fileMenu.addSeparator();
+//
+//	
+//
+//		menuBar.add(fileMenu);
+//		menuBar.add(editMenu);
+//		menuBar.add(windowMenu);
+//
+//		return menuBar;
+//	}
 
 	public static void main(String args[]) {
 		SwingUtilities.invokeLater(new Runnable() {

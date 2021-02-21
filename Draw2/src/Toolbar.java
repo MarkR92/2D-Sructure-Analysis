@@ -87,7 +87,7 @@ boolean isdrawing = false;
 	public void actionPerformed(ActionEvent e) {
 		JButton clicked = (JButton)e.getSource();
 		
-		
+		//System.out.println(clicked);
 		  if (clicked == drawButton && count == 0) {
 			  drawButton.setText("Drawing");
 			  count++;

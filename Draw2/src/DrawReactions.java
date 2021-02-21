@@ -2,8 +2,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.io.Serializable;
 
-public class DrawReactions {
+public class DrawReactions implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6129481665898917914L;
 	
 	private double R[];
 	private double Rround[];

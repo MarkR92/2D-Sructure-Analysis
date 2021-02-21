@@ -62,17 +62,17 @@ public class CreateGlobalMatrix {
 	public void blowupLocalk2( double[][] localkPrime, int[] nodeNumber) {
 
 		localK = new double[dof][dof]; 								//create zero matrix based on dof
-		System.out.println(dof);
+		//System.out.println(dof);
 		for(int i=0;i<6;i++) {
-			
+			//System.out.println(nodeNumber[i]);
 			 indexI = nodeNumber[i]-1;
 			
 			for(int j=0;j<6;j++) {
 				
 				indexJ = nodeNumber[j]-1;
 				
-				 System.out.println(indexI +"i");
-				 System.out.println(indexI +"j");
+				// System.out.println(indexI +"i");
+				// System.out.println(indexI +"j");
 				localK[indexI][indexJ]+= localkPrime[i][j];
 				
 			}
@@ -98,12 +98,7 @@ public class CreateGlobalMatrix {
 	
 	
 	public void addLocalStiffness(double[][] tempGlobalK, double[][] tempGlobalK2) {
-		//double[][] tempGlobalK2 = new double[dof][dof];
-		//final double[][] globalK2 = new double[dof][dof];
-		//tempGlobalK = localK;
 		
-		
-			 
 			 for(int i=0;i<dof;i++) {
 					
 					for(int j=0;j<dof;j++) {
@@ -187,14 +182,14 @@ public class CreateGlobalMatrix {
 	
 	public void reduceGlobalk(ArrayList<String> fixtureList) {
 	
-	//double[][] K = new double[dof][dof];
+	
 		double[][] K=globalK2;
 		
 		reduceddof=dof;
 		
 		for(int z=0; z<fixtureList.size();z++) {
 			
-		if(fixtureList.get(z)=="Fixed") {
+		if(fixtureList.get(z).matches("Fixed")) {
 			
 			//System.out.println(z +"here");
 			reduceddof = reduceddof-3;
@@ -222,7 +217,7 @@ public class CreateGlobalMatrix {
 		}
 		
 		
-		if(fixtureList.get(z)=="Pinned") {	
+		if(fixtureList.get(z).matches("Pinned")) {	
 			
 			reduceddof = reduceddof-2;
 			
@@ -248,7 +243,7 @@ public class CreateGlobalMatrix {
 		
 		
 		}	
-		if(fixtureList.get(z) == "Sliding") {
+		if(fixtureList.get(z).matches("Sliding") ) {
 			reduceddof=reduceddof-1;
 			//System.out.println("hh");
 			
@@ -320,15 +315,15 @@ public class CreateGlobalMatrix {
 			}
 	public double[][] getGlobalK(){
 
-		for(int i=0;i<dof;i++) {
-			
-			for(int j=0;j<dof;j++) {
-								
-				
-				//System.out.print(globalK[i][j] + "  ");
-	}
-				//System.out.println();
-		}
+//		for(int i=0;i<dof;i++) {
+//			
+//			for(int j=0;j<dof;j++) {
+//								
+//				
+//				//System.out.print(globalK[i][j] + "  ");
+//	}
+//				//System.out.println();
+//		}
 		
 		return globalK;
 	}
@@ -337,7 +332,8 @@ public class CreateGlobalMatrix {
 		return reducedK;
 	}
 	
-	public int getreducedDOF() {
+	public int getReducedDOF() {
+		
 		return reduceddof;
 		
 	}

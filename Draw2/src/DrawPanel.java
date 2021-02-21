@@ -324,6 +324,10 @@ public class DrawPanel extends JPanel {
 
      	
      }
+  
+  public void deleteShearDiagram() {
+	  drawshear.clear();
+  }
 
     public boolean containsNode(Node n) {
     	
@@ -367,14 +371,14 @@ public class DrawPanel extends JPanel {
     	//beams.size();
     	this.nodenum=nodenum;
     	//int dof = beams.size()*3;
-    System.out.println(nodenum);
+    //System.out.println(nodenum);
     	return nodenum;
     
     }
     
     int[] beamset;
     
-    public void beamendList() {
+    public void beamEndList() {
     	
     	beamends.add(nodenum);
 		//int[] nodelistt =node;
@@ -385,7 +389,7 @@ public class DrawPanel extends JPanel {
     	
     }
     
-    public int[] getbeamendList() {
+    public int[] getBeamEndList() {
     	return beamset;
     }
     
@@ -477,8 +481,7 @@ public class DrawPanel extends JPanel {
 	
         for (Node node : nodesfilterd) {
 
-        	//for (int i = 0; i<= fixtures.size()-1; i++) {
-        		//System.out.println(fixtures.size()-1);
+        	
         			node.drawNode(g2d);
         	
         			if(fixtures.get(node.getNodeNumber()-1).matches("Pinned") ){
@@ -555,9 +558,22 @@ public class DrawPanel extends JPanel {
             	
             	}
     
+    public void clearDrawPanel() {
+    	
+    	nodes.clear();
+		nodesfilterd.clear();
+		
+		fixtures.clear();
+		members.clear();
+		forces.clear();
+		
+		setRefresh(true);
+		repaint();
+    }
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
      public void saveToFile(File file ) throws IOException {
+    	 
     	 FileOutputStream  fos = new FileOutputStream(file) ;
     	 ObjectOutputStream  oos = new ObjectOutputStream(fos) ;
     	
@@ -565,23 +581,26 @@ public class DrawPanel extends JPanel {
 
     	 Node[] node = nodesfilterd.toArray(new Node[nodesfilterd.size()]);
     	 String[] fixture = fixtures.toArray(new String[fixtures.size()]);
-    	 
-    	
     	 Member[] member = members.toArray(new Member[members.size()]);
     	 Forces[] force = forces.toArray(new Forces[forces.size()]);
+    	// DrawReactions[] drawreaction = drawreactions.toArray(new DrawReactions[drawreactions.size()]);
+    	// DrawDisplacement[] drawdisplacements = drawdisplacement.toArray(new DrawDisplacement[drawdisplacement.size()]);
     	 
-    	// public ArrayList<Forces> forces = new ArrayList<>();
-    	// System.out.println(forces.get(0).getType());
+    	 
     	 oos.writeObject(node);
     	 oos.writeObject(fixture);
     	 oos.writeObject(member);
-    	oos.writeObject(force);
+    	 oos.writeObject(force);
+        // oos.writeObject(drawreaction);
+         //oos.writeObject(drawdisplacements);
     	
+    	 
     	 oos.close();
     	 fos.close();
      }
          
      public void loadFromFile(File file ) throws IOException {
+    	 
     	 FileInputStream  fis = new FileInputStream(file) ;
     	 ObjectInputStream  ois = new ObjectInputStream(fis) ;
     	
@@ -592,21 +611,23 @@ public class DrawPanel extends JPanel {
 			String[] fixture= (String[]) ois.readObject();
 			Member[] member= (Member[]) ois.readObject();
 			Forces[] force = (Forces[]) ois.readObject();
+			//DrawReactions[] drawreaction = (DrawReactions[]) ois.readObject();
+			//DrawDisplacement[] drawdisplacements=(DrawDisplacement[]) ois.readObject();
 			
-			nodes.clear();
-			nodesfilterd.clear();
-			fixtures.clear();
-			members.clear();
-			forces.clear();
+			clearDrawPanel();
+			//drawreactions.clear();
+			//drawdisplacement.clear();
 			
 			nodesfilterd.addAll(Arrays.asList(node));
 			fixtures.addAll(Arrays.asList(fixture));
 			members.addAll(Arrays.asList(member));
 			forces.addAll(Arrays.asList(force));
+			//drawreactions.addAll(Arrays.asList(drawreaction));
+			
 			setRefresh(true);
 			
 			
-			
+			//members.get(0).getnodesList();
 			//System.out.println(members.size());
 			
 			 
@@ -622,7 +643,11 @@ public class DrawPanel extends JPanel {
     	 fis.close();
     	
      }
-            	
+           public int loadDOF() {
+        	  int loaddof= nodes.get(3).getDOF();
+        	   
+        	   return loaddof;
+           }
      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////      	
            // }
        

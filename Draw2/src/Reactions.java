@@ -1,7 +1,7 @@
 import java.awt.Point;
 import java.util.ArrayList;
 
-public class Reactions {
+public class Reactions  {
 	
 	private int dof;							//Degree of freedom for the structure.
 	private int reduceddof;						//Degree of freedom for the structure once boundary conditions are accounted for.
@@ -44,7 +44,7 @@ public class Reactions {
 		double L2 = Math.pow(L, 2);
 		double L3 = Math.pow(L, 3);
 		
-		if(forcetype == "Point") {
+		if(forcetype.matches("Point")) {
 			
 		reaction_a = (P*b2*(3*a+b))/L3;
 		reaction_b = (P*a2*(a+b*3))/L3;
@@ -54,7 +54,7 @@ public class Reactions {
 		
 		}
 		
-		if(forcetype == "UDL") {
+		if(forcetype.matches("UDL")) {
 			
 			reaction_a = (P*L)/2;
 			reaction_b = (P*L)/2;
@@ -64,7 +64,7 @@ public class Reactions {
 			 
 			}
 		
-		if(forcetype == "Moment") {
+		if(forcetype.matches("Moment")) {
 			
 			reaction_a = (6*P*a*b)/L3;
 			reaction_b = (6*P*a*b)/L3;
@@ -103,19 +103,19 @@ public class Reactions {
 
 //Check what the force type and direction is and assign to correct location in force vector.
 	 
-	 if(forcetype =="Moment") {
+	 if(forcetype.matches("Moment")) {
 		 
 		globalQtemp[index*3-1]= P;
 		 
 	 }
 	 
-	 if(forcetype =="Point" && direction == "Perpendicular") {
+	 if(forcetype.matches("Point") && direction.matches("Perpendicular")) {
 		
 		globalQtemp[index*3-2]= P;
 		
 	 }
 	
-	 if(forcetype =="Point" && direction == "Parallel") {
+	 if(forcetype.matches("Point") && direction.matches("Parallel")) {
 		
 			globalQtemp[index*3-3]= P;
 			
@@ -268,11 +268,11 @@ public void addLocalForces2() {
 		//for(int j=0;j<9;j++) {
 							
 			globalF[i] = localk1[i]+localk2[i];
-		//	System.out.print(globalF[i] + "  ");
+			System.out.print(globalF[i] + "  ");
 
 			
 	}
-	//System.out.println();
+	System.out.println();
 	
 	if (globalF == null) {
 		for(int i=0;i<dof;i++) {
@@ -294,7 +294,7 @@ public void subtractNodeForces() {
 	}
 	for (int i=0;i<dof;i++) {
 		
-		
+	//	System.out.print(globalF[i] +" s1  ");
 		
 		//subQ[i] = globalQ[i]-globalF[i]; 
 		 
@@ -310,7 +310,7 @@ public void subtractNodeForces() {
 	
 	//System.out.print(subQ[i] +" s1  ");	
 	}
-//System.out.println( );
+System.out.println( );
 	
 	
 	if(reduceddof!=0) {
@@ -324,7 +324,7 @@ public void reduceForceVector(ArrayList<String> fixtureList) {
 	 
 	 for(int z=0; z<fixtureList.size();z++) {
 			
-			if(fixtureList.get(z)=="Fixed") {
+			if(fixtureList.get(z).matches("Fixed")) {
 				
 				for(int i=z*3;i<3*z+3;i++) {
 						
@@ -335,7 +335,7 @@ public void reduceForceVector(ArrayList<String> fixtureList) {
 				
 			}
 			
-			if(fixtureList.get(z)=="Pinned") {
+			if(fixtureList.get(z).matches("Pinned")) {
 				
 				for(int i=z*3;i<3*z+2;i++) {
 							
@@ -346,7 +346,7 @@ public void reduceForceVector(ArrayList<String> fixtureList) {
 				//System.out.println( );
 			}
 			
-			if(fixtureList.get(z)=="Sliding") {
+			if(fixtureList.get(z).matches("Sliding")) {
 				
 				for(int i=1+z*3;i<3*z+2;i++) {
 					

@@ -24,7 +24,7 @@ public class Member implements Serializable {
 	
 	private int number;		//Member number
 	private int dof;
-	
+	private int[] doflist;
 	
 
 	private Color color;
@@ -76,7 +76,7 @@ public class Member implements Serializable {
 		
 	}
 	
-	public int[] getnodeDOFList() {
+	public int[] calculateNodeDOFList() {
 
 			vs=start*3-2;
 			hs=vs+1;
@@ -93,12 +93,24 @@ public class Member implements Serializable {
 		
 		for(int j = 0; j<dofnodelist.length; j++) {
 			//System.out.print(dofnodelist[j]+ "," );
-		//	System.out.println(dofnodelistend[j]);
+			//System.out.println(dofnodelistend[j]);
 			}
 		//	System.out.println();
 			
-			
+			doflist=dofnodelist;
 		return dofnodelist;
+		
+	}
+	
+	public int[] getNodeDOFList(){
+		
+		for(int j = 0; j<doflist.length; j++) {
+			//System.out.print(doflist[j]+ "," );
+			////System.out.println(dofnodelistend[j]);
+			}
+			//System.out.println();
+		
+		return doflist;
 		
 	}
 	
@@ -321,13 +333,19 @@ public void calculateMemberReaction(double P, Point ab) {
 			
 		}else {
 		double s = (dy2-dy1)/(dx2-dx1);
-		
+		//calculateYintercept();
 		return s;
 		
 		}	
 		
 	}
-
+	public void calculateYintercept() {
+		//y = mx +c
+		//c=y-mx
+		double c = (y2-y1)-(x2-x1)*getSlope();
+		System.out.println(getSlope());
+		System.out.println(c/10/2+ "intercept");
+	}
 	
 public double getAngle() {
 	double dy1 = y1;

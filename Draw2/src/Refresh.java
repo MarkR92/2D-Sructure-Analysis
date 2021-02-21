@@ -14,5 +14,10 @@ public class Refresh {
 		System.out.println(dof);
 		return dof;
 	}
+	public int [] refreshDOFList(int[] doflist) {
+		
+		
+		return doflist;
+	}
 
 }

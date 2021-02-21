@@ -35,7 +35,7 @@ public class Displacements {
 			
 			//System.out.print(F[col] + "   h");
 			}
-			System.out.print(U[row] + "   ");
+			System.out.print(U[row] + " U  ");
 			
 		}
 		System.out.println();
@@ -48,7 +48,7 @@ public class Displacements {
 		 
 		 for(int z=0; z<fixtureList.size();z++) {
 				
-				if(fixtureList.get(z)=="Fixed") {
+				if(fixtureList.get(z).matches("Fixed")) {
 			
 					for(int i=z*3;i<3*z+3;i++) {
 					
@@ -58,7 +58,7 @@ public class Displacements {
 		
 				}
 				
-		 if(fixtureList.get(z)=="Pinned") {
+		 if(fixtureList.get(z).matches("Pinned")) {
 				
 				for(int i=z*3;i<3*z+2;i++) {
 				
@@ -69,7 +69,7 @@ public class Displacements {
 		
 			}
 			
-			if(fixtureList.get(z)=="Sliding") {
+			if(fixtureList.get(z).matches("Sliding")) {
 				
 				for(int i=1+z*3;i<3*z+2;i++) {
 					
