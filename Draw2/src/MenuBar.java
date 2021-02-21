@@ -24,16 +24,13 @@ public class MenuBar extends JMenuBar implements ActionListener{
 	private JMenuItem saveasItem;
 	private JMenuItem exitItem;
 	
-
 	private MenuBarListener menuItemListener;
-	
-	
+
 	  public MenuBar() {
 		  	  	
 		    fileMenu = new JMenu("File");
 		    editMenu = new JMenu("Edit");
 			windowMenu = new JMenu("Window");
-	
 
 			newItem = new JMenuItem("New");
 			openItem = new JMenuItem("Open File...");
@@ -76,41 +73,41 @@ public class MenuBar extends JMenuBar implements ActionListener{
 	}
 
 
-@Override
-public void actionPerformed(ActionEvent e) {
-	JMenuItem isclicked = (JMenuItem) e.getSource();
-	
-	if(isclicked == newItem) {
+	@Override
+	public void actionPerformed(ActionEvent e) {
 		
-		if(menuItemListener != null) {
-			menuItemListener.stringEmitted("New");
+		JMenuItem isclicked = (JMenuItem) e.getSource();
+	
+		if(isclicked == newItem) {
+		
+			if(menuItemListener != null) {
+				menuItemListener.stringEmitted("New");
 		}
 	}
 	
-	if(isclicked == openItem) {
+		if(isclicked == openItem) {
 	
-		if(menuItemListener != null) {
-			menuItemListener.stringEmitted("Open");
+			if(menuItemListener != null) {
+				menuItemListener.stringEmitted("Open");
 		}
 	}
-if(isclicked == saveItem) {
+		if(isclicked == saveItem) {
 	
-	if(menuItemListener != null) {
-	menuItemListener.stringEmitted("Save");
+			if(menuItemListener != null) {
+				menuItemListener.stringEmitted("Save");
 	}
 }
-if(isclicked == saveasItem) {
+		if(isclicked == saveasItem) {
 	
-	if(menuItemListener != null) {
-	menuItemListener.stringEmitted("SaveAs");
+			if(menuItemListener != null) {
+				menuItemListener.stringEmitted("SaveAs");
 	}
-	
-	
+
 }
-if(isclicked == exitItem) {
-	System.out.println("exit");
-	if(menuItemListener != null) {
-	menuItemListener.stringEmitted("Exit");
+		if(isclicked == exitItem) {
+	
+			if(menuItemListener != null) {
+				menuItemListener.stringEmitted("Exit");
 	}
 }	
 	
