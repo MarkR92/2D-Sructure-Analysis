@@ -148,8 +148,9 @@ public class Member implements Serializable {
 		double ypow2 = Math.pow(getDeltaY(), 2);
 		//Math.round(R[i] *100.0 )/ 100.0;
 		double l=	(Math.sqrt(xpow2+ypow2));
-	//System.out.println(l);
+	
 		double lr= Math.round(l *100.0 )/ 100.0;
+		//System.out.println(lr+"l");
 	return lr;
 	
 	}
@@ -343,8 +344,8 @@ public void calculateMemberReaction(double P, Point ab) {
 		//y = mx +c
 		//c=y-mx
 		double c = (y2-y1)-(x2-x1)*getSlope();
-		System.out.println(getSlope());
-		System.out.println(c/10/2+ "intercept");
+		//System.out.println(getSlope());
+		//System.out.println(c/10/2+ "intercept");
 	}
 	
 public double getAngle() {

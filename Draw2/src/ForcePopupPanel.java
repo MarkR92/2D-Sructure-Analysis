@@ -1,7 +1,5 @@
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-
-import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;

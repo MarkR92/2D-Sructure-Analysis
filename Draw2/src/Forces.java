@@ -215,7 +215,7 @@ public class Forces implements Serializable {
 			//Create line based at midpoint
 		 	g.rotate((b.getAngle()),(b.getMidPoint().x),(b.getMidPoint().y));
 		 	
-		 	Rectangle2D rect  = new Rectangle2D.Double(b.getMidPoint().x-b.getLength()/2, b.getMidPoint().y-30, b.getLength(), 1);
+		 	Rectangle2D rect  = new Rectangle2D.Double(b.getMidPoint().x-b.getLength()*10, b.getMidPoint().y-30, b.getLength()*10*2, 1);
 		 	g.draw(rect);
 		 	
 			//Create arrow at midpoint

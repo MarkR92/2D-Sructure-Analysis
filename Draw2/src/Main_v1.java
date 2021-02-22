@@ -391,7 +391,7 @@ public class Main_v1 extends JFrame{
 						
 						for (Member member:drawPanel.getMembers()) {
 							
-							drawPanel.addShear(new DrawShear(drawPanel.getShearResults().get(member.getNumber()), member.getMemberStart(),member.getMemberEnd(),member.getNumber(),member.getAngle(),member.getMidPoint(), member.getSlope()));
+							drawPanel.addShear(new DrawShear(drawPanel.getShearResults().get(member.getNumber()), member.getMemberStart(),member.getMemberEnd(),member.getNumber(),member.getAngle(),member.getMidPoint(), member.getSlope(),member.getLength()));
 							
 						}
 						
@@ -941,139 +941,7 @@ public class Main_v1 extends JFrame{
 		
 	}
 	
-//	private JMenuBar createMenuBar() {
-//		JMenuBar menuBar = new JMenuBar();
-//
-//		JMenu fileMenu = new JMenu("File");
-//		JMenu editMenu = new JMenu("Edit");
-//		JMenu windowMenu = new JMenu("Window");
-//
-//		JMenuItem newItem = new JMenuItem("New");
-//		JMenuItem openItem = new JMenuItem("Open File...");
-//		JMenuItem saveItem = new JMenuItem("Save");
-//		JMenuItem saveasItem = new JMenuItem("Save As...");
-//		JMenuItem exitItem = new JMenuItem("Exit");
-//
-//		fileMenu.add(newItem);
-//		fileMenu.add(openItem);
-//		fileMenu.addSeparator();
-//		fileMenu.add(saveItem);
-//		fileMenu.add(saveasItem);
-//		fileMenu.addSeparator();
-//		fileMenu.add(exitItem);
-//
-//		fileMenu.setMnemonic(KeyEvent.VK_F);
-//		exitItem.setMnemonic(KeyEvent.VK_X);
-//		
-//		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
-//		
-//		newItem.addActionListener(new ActionListener() {
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
-//					try {
-//						drawPanel.clearDrawPanel();
-//						saveToFile(fileChooser.getSelectedFile());
-//						
-//						
-//						loadFromFile(fileChooser.getSelectedFile());
-//						labelPanel.setLoadedLabelText(fileChooser.getSelectedFile().getName());
-//						
-//					
-//						
-//					} catch (IOException e1) {
-//						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
-//					}
-//				}
-//				
-//			
-//				drawPanel.repaint();
-//			}
-//			
-//		});
-//		
-//		openItem.addActionListener(new ActionListener() {
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				if (fileChooser.showOpenDialog(Main_v1.this) == JFileChooser.APPROVE_OPTION) {
-//					//System.out.println(fileChooser.getSelectedFile());
-//					try {
-//						loadFromFile(fileChooser.getSelectedFile());
-//						labelPanel.setLoadedLabelText(fileChooser.getSelectedFile().getName());
-//						
-//					} catch (IOException e1) {
-//						JOptionPane.showMessageDialog(Main_v1.this, "Could not Load", "Error", JOptionPane.ERROR_MESSAGE);;
-//					}
-//					
-//				}
-//				drawPanel.repaint();
-//				
-//			}
-//			
-//		});
-//		
-//		saveasItem.addActionListener(new ActionListener() {
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
-//					try {
-//						saveToFile(fileChooser.getSelectedFile());
-//						//System.out.println(fileChooser.getSelectedFile());
-//					} catch (IOException e1) {
-//						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
-//					}
-//				}
-//				
-//				
-//			}
-//			
-//		});
-//		saveItem.addActionListener(new ActionListener() {
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				//if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
-//					try {
-//						saveToFile(getLoadedFile());
-//						//System.out.println(fileChooser.getSelectedFile());
-//					} catch (IOException e1) {
-//						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
-//					}
-//				//}
-//				
-//				
-//			}
-//			
-//		});
-//		exitItem.addActionListener(new ActionListener() {
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				int action = JOptionPane.showConfirmDialog(Main_v1.this, 
-//						"Do you really want to close the application?",
-//						"Confirm Exit", JOptionPane.OK_CANCEL_OPTION);
-//				
-//				if(action == JOptionPane.OK_OPTION) {
-//					System.exit(0);	
-//				}
-//				
-//
-//			}
-//
-//		});
-//		// fileMenu.addSeparator();
-//
-//	
-//
-//		menuBar.add(fileMenu);
-//		menuBar.add(editMenu);
-//		menuBar.add(windowMenu);
-//
-//		return menuBar;
-//	}
+
 
 	public static void main(String args[]) {
 		SwingUtilities.invokeLater(new Runnable() {
