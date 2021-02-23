@@ -1,7 +1,7 @@
 // Java program to find adjoint and inverse of a matrix 
 public class CalculateInvMatrix{ 
       
-	private int N; 
+	private int N=6; 
 
   public void setN(int N) {
 	  this.N=N;
@@ -96,8 +96,7 @@ public void adjoint(double A[][],double [][]adj) {
   
 // Function to calculate and store inverse, returns false if 
 // matrix is singular 
-public boolean inverse(double A[][], double [][]inverse) 
-{ 
+public boolean inverse(double A[][], double [][]inverse){ 
     // Find determinant of A[][] 
     double det = determinant(A, N); 
     if (det == 0) 

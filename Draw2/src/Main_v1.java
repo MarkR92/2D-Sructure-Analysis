@@ -198,7 +198,7 @@ public class Main_v1 extends JFrame{
 					Reactions reactions = new Reactions(drawPanel.getMemberDOF(), globalK.getReducedDOF());
 					
 					CalculateInvMatrix invmatrix = new CalculateInvMatrix();
-					invmatrix.setN(6);
+					//invmatrix.setN(6);
 					
 					
 					
@@ -207,51 +207,71 @@ public class Main_v1 extends JFrame{
 						
 ////////////////////////////////////////////////////Member Forces////////////////////////////////////////////////////////
 					double []TempForceF = new double[drawPanel.getMemberDOF()];
-					
+					for (Forces force : drawPanel.getForces()) {
 					for (Member member : drawPanel.getMembers()) {
 						
-					for (Forces force : drawPanel.getForces()) {
 					
 						
-						if (member.getNumber() == force.getNumber() && force.getType().matches("Point") && member.getbounds().contains(force.getLocation())) {
-						System.out.println("true");
-						
-							reactions.calculateMemberReaction(force.getMagnitude(),force.getType(), member.getLength(), force.getLocation(), member.x1, member.x2,member.y1,member.y2 );
+					//System.out.println(drawPanel.getForces().size());
+						if (force.getType().matches("Point") && member.getbounds().contains(force.getLocation())) {
+							
+							reactions.calculateMemberReaction(force.getMagnitude(),force.getType(), member.getLength(), force.getLocation(), member.getMemberStart(), member.getMemberEnd() );
 					
 							double [][]adj = new double[6][6]; // To store adjoint of A[][] 
 							double [][]inv = new double[6][6]; // To store inverse of A[][] 
 							
 					    	invmatrix.adjoint(member.getBeta(), adj); 
 						 
-						    if (invmatrix.inverse(member.getBeta(), inv)) 
-						   
-						    reactions.globalForce( inv, reactions.memberReactionVector());
+						    if (invmatrix.inverse(member.getBeta(), inv)) {// check for singularity
+						    	
+						    	
+						    	reactions.globalMemberForceVector( inv,member.getNumber());
+						    	reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
 						    
-						   // reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
-						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
+						    }
 						    
-						}else {
-							reactions.calculateMemberReaction(0,force.getType(), member.getLength(), force.getLocation(), member.x1, member.x2,member.y1,member.y2 );
+						}
+						else {
 							
+							if(drawPanel.getForces().size()>drawPanel.getMembers().size()) {
+								
+							}
+							System.out.println("here force");
 							double [][]adj = new double[6][6]; // To store adjoint of A[][] 
 							double [][]inv = new double[6][6]; // To store inverse of A[][] 
+							reactions.localMemberForceVector();
 							
-					    	invmatrix.adjoint(member.getBeta(), adj); 
-						 
-						    if (invmatrix.inverse(member.getBeta(), inv)) 
-						   
-						    reactions.globalForce( inv, reactions.memberReactionVector());
+							invmatrix.adjoint(member.getBeta(), adj); 
+							if (invmatrix.inverse(member.getBeta(), inv)) {// check for singularity
+						    	
+						    	
+						    	reactions.globalMemberForceVector( inv,member.getNumber());
+						    	reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
 						    
-						 //   reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
-						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
-							
+						    }
+//							reactions.calculateMemberReaction(0,force.getType(), member.getLength(), force.getLocation(), member.getMemberStart(), member.getMemberEnd());
+//							
+//							double [][]adj = new double[6][6]; // To store adjoint of A[][] 
+//							double [][]inv = new double[6][6]; // To store inverse of A[][] 
+//							
+//					    	invmatrix.adjoint(member.getBeta(), adj); 
+//						 
+//						    if (invmatrix.inverse(member.getBeta(), inv)) { //check for singularity
+//						   
+//						    
+//						    
+//						    reactions.globalMemberForceVector( inv);
+//						    
+//
+//						    reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
+					//}
 							
 							
 						}
 						
 						if (member.getNumber()== force.getNumber() && force.getType().matches("UDL")) {
 							
-							reactions.calculateMemberReaction((force.getMagnitude()),force.getType(), member.getLength(), force.getLocation(), member.x1, member.x2,member.y1,member.y2);
+							reactions.calculateMemberReaction((force.getMagnitude()),force.getType(), member.getLength(), force.getLocation(), member.getMemberStart(), member.getMemberEnd());
 						
 							//reactions.memberReactionVector();
 							
@@ -261,10 +281,12 @@ public class Main_v1 extends JFrame{
 						    invmatrix.adjoint(member.getBeta(), adj); 
 							
 							  if (invmatrix.inverse(member.getBeta(), inv)) 
-							     
-							    reactions.globalForce( inv, reactions.memberReactionVector());
+								  
+								  
+								  
+							      reactions.globalMemberForceVector(inv,member.getNumber());
 							    
-							   // reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), b.getnodesList());
+							  
 							  reactions.blowupLocalMemberForceVector(reactions.getGlobalForce(), member.getNodeDOFList());
 							
 							}
@@ -340,7 +362,7 @@ public class Main_v1 extends JFrame{
 					
 					    for (Member member : drawPanel.getMembers()) {
 					    	
-					    	reactions.calculateLocalReactions(member.getLocalKPrime(), d.localDeflections(member.getNumber(),member.getBeta()));
+					    	reactions.calculateLocalReactions(member.getLocalKPrime(), d.localDeflections(member.getNumber(),member.getBeta()),member.getNumber());
 					    	//r(b.getLocalKPrime(), d.getDisplacmentVector());
 					    	//drawPanel.addShear(new DrawShear(reactions.getLocalReactions(), member.getMemberStart(),member.getMemberEnd(),member.getnodesList(),member.getnodeDOFList()));
 						drawPanel.addShearResults(reactions.getLocalReactions());

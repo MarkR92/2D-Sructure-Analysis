@@ -407,7 +407,9 @@ public void lineBoundx(int xi) {
 		Point point = new Point(x2,y2);
 		return point;
 	}
-
+public double[] intialLocalForces() {
+	return null;
+}
 	
 	
 	public Graphics2D drawBeam(Graphics2D g2d) {
@@ -433,7 +435,7 @@ public void lineBoundx(int xi) {
 		
 	    g2d.rotate((getAngle()),getMidPoint().getX(),getMidPoint().getY());
 	    
-	    g2d.drawRect((int)getMidPoint().getX()-5,(int)getMidPoint().getY()-5,10, 10);
+	   // g2d.drawRect((int)getMidPoint().getX()-5,(int)getMidPoint().getY()-5,10, 10);
 	    
 	    g2d.setTransform(old);
 	    
@@ -526,7 +528,7 @@ boolean isSelected() {
 }
 
 
-int getNumber() {
+public int getNumber() {
     return number;
 }
 }
