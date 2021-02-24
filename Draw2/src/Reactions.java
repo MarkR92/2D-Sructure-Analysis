@@ -20,6 +20,7 @@ public class Reactions  {
 	public ArrayList<double[]> shearResults = new ArrayList<double[]>();
 	public ArrayList<double[]> memberForces = new ArrayList<double[]>();
 	
+	public String forcetype;
 	
 	Reactions(int dof, int reduceddof) {
 		
@@ -30,6 +31,8 @@ public class Reactions  {
 	
  public void calculateMemberReaction(double P, String forcetype, double L, Point forcelocation, Point memberstart, Point memberend) { //Calculate reactions due to applied force on members.
 		
+	    this.forcetype=forcetype;
+	 
 		double a = Math.abs(forcelocation.getX()-memberend.x)/10/2;
 		double b = Math.abs(forcelocation.getX()-memberstart.x)/10/2;
 		
@@ -514,8 +517,9 @@ public double getMb() {
 	 return momentreaction_b;
 }
 
+public String getForceType() {
+	return forcetype;
 
-
-	 	
+}
 
 }

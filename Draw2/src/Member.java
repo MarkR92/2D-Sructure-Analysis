@@ -26,7 +26,7 @@ public class Member implements Serializable {
 	private int dof;
 	private int[] doflist;
 	
-
+	private String forcetype="None";
 	private Color color;
 	
 	private boolean selected;
@@ -530,5 +530,14 @@ boolean isSelected() {
 
 public int getNumber() {
     return number;
+}
+
+public void setForceType(String forcetype) { 
+	this.forcetype = forcetype;
+	
+}
+public String getForceType() { 
+	return this.forcetype;
+	
 }
 }

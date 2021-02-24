@@ -233,10 +233,8 @@ public class Main_v1 extends JFrame{
 						}
 						else {
 							
-							if(drawPanel.getForces().size()>drawPanel.getMembers().size()) {
-								
-							}
-							System.out.println("here force");
+							
+							//System.out.println("here force");
 							double [][]adj = new double[6][6]; // To store adjoint of A[][] 
 							double [][]inv = new double[6][6]; // To store inverse of A[][] 
 							reactions.localMemberForceVector();
@@ -272,7 +270,7 @@ public class Main_v1 extends JFrame{
 						if (member.getNumber()== force.getNumber() && force.getType().matches("UDL")) {
 							
 							reactions.calculateMemberReaction((force.getMagnitude()),force.getType(), member.getLength(), force.getLocation(), member.getMemberStart(), member.getMemberEnd());
-						
+						//System.out.println("here UDL");
 							//reactions.memberReactionVector();
 							
 							double [][]adj = new double[6][6]; // To store adjoint of A[][]   
@@ -364,8 +362,10 @@ public class Main_v1 extends JFrame{
 					    	
 					    	reactions.calculateLocalReactions(member.getLocalKPrime(), d.localDeflections(member.getNumber(),member.getBeta()),member.getNumber());
 					    	//r(b.getLocalKPrime(), d.getDisplacmentVector());
+					    	
 					    	//drawPanel.addShear(new DrawShear(reactions.getLocalReactions(), member.getMemberStart(),member.getMemberEnd(),member.getnodesList(),member.getnodeDOFList()));
-						drawPanel.addShearResults(reactions.getLocalReactions());
+					//	System.out.println(reactions.getForceType());
+					    	drawPanel.addShearResults(reactions.getLocalReactions(),member.getForceType());
 					    }
 				
 				}
@@ -411,9 +411,11 @@ public class Main_v1 extends JFrame{
 						drawPanel.deleteDisplacements();
 						drawPanel.deleteShearDiagram();
 						
+						
+						
 						for (Member member:drawPanel.getMembers()) {
-							
-							drawPanel.addShear(new DrawShear(drawPanel.getShearResults().get(member.getNumber()), member.getMemberStart(),member.getMemberEnd(),member.getNumber(),member.getAngle(),member.getMidPoint(), member.getSlope(),member.getLength()));
+							//System.out.println(drawPanel.getForceType().get(member.getNumber()));
+							drawPanel.addShear(new DrawShear(drawPanel.getShearResults().get(member.getNumber()),drawPanel.getForceType().get(member.getNumber()), member.getMemberStart(),member.getMemberEnd(),member.getNumber(),member.getAngle(),member.getMidPoint(), member.getSlope(),member.getLength()));
 							
 						}
 						
@@ -507,13 +509,13 @@ public class Main_v1 extends JFrame{
 					}
 					
 				}
-				for (Member member : drawPanel.getMembers()) { //Iterate through each beam
+				for (Member member : drawPanel.getMembers()) { //Iterate through each memeber
 					
-					if (result == "Force" && member.isSelected()) { // check if force is pressed and if a beam was selected
-						//System.out.println("Here");
+					if (result == "Force" && member.isSelected()) { // check if force is pressed and if a memeber was selected
+						
 						  forcepane = new ForcePopupPanel(); //Instance of Popup Panel
 						  forcepane.createPopup();  //Force popup panel is displayed
-						//b.getNumber();
+					
 						  
 						  
 									if (forcepane.getForce() == "Point") { //Point Force Selected
@@ -540,7 +542,7 @@ public class Main_v1 extends JFrame{
 										
 									}
 									
-									
+									member.setForceType(forcepane.getForce());
 									member.setSelected(false);
 								
 					}

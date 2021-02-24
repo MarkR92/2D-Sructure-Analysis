@@ -45,6 +45,7 @@ public class DrawPanel extends JPanel {
 	public ArrayList<DrawDisplacement> drawdisplacement = new ArrayList<>();
 	public ArrayList<DrawShear> drawshear = new ArrayList<>();
 	public ArrayList<double[]> shearresults = new ArrayList<double[]>();
+	public ArrayList<String> forcetype = new ArrayList<String>();
 	
 	private double[] R;
 	
@@ -229,15 +230,20 @@ public class DrawPanel extends JPanel {
     	
     }
     
-    public void addShearResults(double[] shearresults) {
+    public void addShearResults(double[] shearresults,String forcetype) {
     	
     	this.shearresults.add(shearresults);
-    	
+    	this.forcetype.add(forcetype);
     }
     
     public ArrayList<double[]> getShearResults() {
     	
     	return shearresults;
+    	
+    }
+    public ArrayList<String> getForceType() {
+    	
+    	return forcetype;
     	
     }
     
