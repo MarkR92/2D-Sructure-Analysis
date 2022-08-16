@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,7 +14,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,6 +35,8 @@ public class DrawPanel extends JPanel {
 	
 	public ArrayList<Node> nodes = new ArrayList<>();
 	public ArrayList<Node> nodesfilterd = new ArrayList<>();
+	public ArrayList<Point> nodeCoordinates = new ArrayList<>();
+	public ArrayList<Point> memberMidPointCoordinates = new ArrayList<>();
 	public ArrayList<Member> members = new ArrayList<>();
 	public ArrayList<TempMember> tempmember = new ArrayList<>();
 	
@@ -46,31 +52,35 @@ public class DrawPanel extends JPanel {
 	public ArrayList<DrawShear> drawshear = new ArrayList<>();
 	public ArrayList<double[]> shearresults = new ArrayList<double[]>();
 	public ArrayList<String> forcetype = new ArrayList<String>();
+	public ArrayList<DrawBending> drawbending = new ArrayList<>();
 	
 	private double[] R;
 	
+	private boolean hideForces=false;
 	//public ArrayList<Element> element = new ArrayList<>();
 	
-	private Dimension preferredSize=(new Dimension(600,600)) ;   
+	private Dimension preferredSize=(new Dimension(800,800)) ;   
 	
-	private static int prevN = 0;
+	private static double prevN = 0;
 	private int dof;
 	private int nodenum;
 	
 	private double scale=1;
-	private int tranx=0;
-	private int trany=0;
+	private double scale2=1;
+	private int tranx;
+	private int trany;
 	private boolean result;
 	private boolean refresh;
 	
+	int w, h;
 	
-	    int vpw =(int) (600*scale);//viewport width
-	    int vph =(int) (600*scale);//viewport height
-	    int gw = 10;//grid width
-	    int gh = 10;//grid height
+	    int vpw;
+	    int vph;
+	    int gridwidth = (int) (10);//grid width
+	    int gridheight = (int) (10);//grid height
 		
-	    int npx, npy;//current snap coords
-	    
+	    int snapmousepositionx, snapmousepositiony;//current snap coords
+	    int currentmousepositionx,currentmousepositiony;
 	   
     public void  addNode(Node n) {
 
@@ -89,6 +99,7 @@ public class DrawPanel extends JPanel {
     	
     	if( n.toAdd()==true) {
     		nodesfilterd.add(n);
+    		addNodeCoordinate(n);
     		
     	}
     
@@ -97,98 +108,153 @@ public class DrawPanel extends JPanel {
     	
     }
  
-   
-    
-    
-    public void createGrid(int x, int y) {
-    	
-    	int xn = x, yn = y;
-         int mx = xn % gw, my = yn % gh;
-         if (mx<gw/2) npx = xn - mx;
-         else npx = xn + (gw-mx);
-         if (my<gh/2) npy = yn - my;
-         else npy = yn + (gh-my);
-        
-    	
-    }
-    public void updatePreferredSize(int n, Point p) {
-//   
+    public void  addNodeCoordinate(Node n) {
 
-    	    if(n == 0)              // ideally getWheelRotation() should never return 0. 
-    	        n = -1 * prevN;     // but sometimes it returns 0 during changing of zoom 
-    	                            // direction. so if we get 0 just reverse the direction.
-
-    	    double d = (double) n * 1.08;
-    	    d = (n > 0) ? 1 / d : -d;
-
-    	    int w = (int) (getWidth() * d);
-    	    int h = (int) (getHeight() * d);
-    	    preferredSize.setSize(w, h);
-
-    	    int offX = (int)(p.x * d) - p.x;
-    	    int offY = (int)(p.y * d) - p.y;
-    	    getParent().setLocation(getParent().getLocation().x-offX,getParent().getLocation().y-offY); 
-    	    //in the original code, zoomPanel is being shifted. here we are shifting containerPanel
-
-    	    getParent().doLayout();             // do the layout for containerPanel
-    	    getParent().getParent().doLayout(); // do the layout for jf (JFrame)
-
-    	    prevN = n;
-    }
-    @Override
-    public Dimension getPreferredSize() {
-    	//System.out.println(preferredSize);
-        return preferredSize;
-        
+    	nodeCoordinates.add(n.getCoord());
+     
     }
     
-    public void setPreferredSize(Dimension d) {
-    	//preferredSize=d;
-        
+    public ArrayList<Point>  sortNodeCoordinate() {
+
+    	
+    	Collections.sort(nodesfilterd, new NodeComparator());
+    	
+    	for(int i=0;i<nodesfilterd.size();i++) {
+    		
+    		nodesfilterd.get(i).setNodeNumber(i+1);
+    		System.out.println(nodesfilterd.get(i).getCoord()+"Point"+ nodesfilterd.get(i).getNodeNumber());
+    	}
+ 
+    return nodeCoordinates;
+     
     }
 
-    public void drawGrid(Graphics2D g) {
-    	g.setColor(Color.lightGray);
-    	g.clearRect(0, 0, vpw, vph);
+    public void createSnapGrid(int x, int y) {
     	
-      //  g.setColor(Color.DARK_GRAY);
+    	 currentmousepositionx = x;
+    	 currentmousepositiony = y;
+    	 
+         int remainderx = currentmousepositionx % getGridWidth(), remaindery = currentmousepositiony % getGridHeight();
+         
+         if (remainderx<getGridWidth()/2) setSnapX(currentmousepositionx - remainderx) ;
+         else setSnapX(currentmousepositionx + (getGridWidth()-remainderx));
+         
+         if (remaindery<getGridHeight()/2) setSnapY(currentmousepositiony - remaindery);
+         else setSnapY(currentmousepositiony + (getGridHeight()-remaindery));
         
-        //grid vertical lines
-        for (int i=gw;i<vpw;i+=gw) {
-             g.drawLine(i, 0, i, vph);
-        }
-        //grid horizontal lines
-        for (int j=gh;j<vph;j+=gh) {
-             g.drawLine(0, j, vpw, j);
-        }
-      //  g.setColor(Color.DARK_GRAY);
-        //show the snapped point
-        g.setColor(Color.BLACK);
-        if (npx>=0 && npy>=0 && npx<=vpw && npy<=vph) {
-        	 result =true;
-             g.drawOval(npx-4, npy-4, 8, 8);
-             
-             
-        }
-        
-        
-
-   }
+    	
+    }
     public int getSnapX(){
     	
-    	return this.npx;
+    	return (this.snapmousepositionx);
     }
     public int getSnapY(){
     	
-    	return this.npy;
+    	return  (this.snapmousepositiony);
     }
     
+    
+    public void setSnapX(int snap){
+    	this.snapmousepositionx=(int) (snap);
+    	
+    	
+    }
+    public void setSnapY(int snap){
+    	this.snapmousepositiony=(int) (snap);
+    	
+    	
+    }
+    public int getGridWidth(){
+    	
+    	return (int) (this.gridwidth);
+    }
+    public int getGridHeight(){
+    	
+    	return (int) (this.gridheight);
+    }
+    
+    public void drawGrid(Graphics2D g) {
+    	g.setColor(Color.lightGray);
+    	g.clearRect(0, 0, getWidth(), getHeight());
+    	
+    	// System.out.println(getParent().getParent().getWidth());
+        //grid vertical lines
+        for (int i= (gridwidth);i<getWidth();i+=gridwidth) {
+             g.drawLine(i, 0, i, getHeight());
+             
+        }
+       
+        //grid horizontal lines
+        for (int j= (gridheight);j<getHeight();j+=gridheight) {
+             g.drawLine(0, j, getWidth(), j);
+        }
+    // System.out.println(getWidth()+","+getHeight());
+        //show the snapped point
+        g.setColor(Color.BLACK);
+        if ( getSnapX()>=0 &&  getSnapY()>=0 &&  getSnapX()<=getWidth() && getSnapY()<=getHeight()) {
+        	// result =true;
+             g.drawOval((int) ( getSnapX())-4, (int) (getSnapY()-4), 8, 8);
+             
+             
+        }
+
+   }
+
+    
+    
+    public void updatePreferredSize(double n, Point p) {
+
+        if(n == 0)              // ideally getWheelRotation() should never return 0. 
+            n = -1 * prevN;     // but sometimes it returns 0 during changing of zoom 
+                                // direction. so if we get 0 just reverse the direction.
+
+        double d = (double) n * 1.08;
+        d = (n > 0) ? 1 / d : -d;
+
+        int w = (int) (getWidth() * d);
+        int h = (int) (getHeight() * d);
+        
+        preferredSize.setSize(w, h);
+        
+        int offX = (int)(p.x * d) - p.x;
+        int offY = (int)(p.y * d) - p.y;
+        
+        System.out.println(offX+","+offY);
+        getParent().setLocation(getParent().getLocation().x-offX,getParent().getLocation().y-offY); 
+        //in the original code, zoomPanel is being shifted. here we are shifting containerPanel
+       
+        getParent().doLayout();             // do the layout for containerPanel
+        getParent().getParent().doLayout(); // do the layout for jf (JFrame)
+       
+        prevN = n;
+        
+        
+    }
+ 
+
+    @Override
+    public Dimension getPreferredSize() {
+
+    
+        return preferredSize;
+        
+    }
+
+ 
+    
+    public void setPreferredSize(Dimension d) {
+    	preferredSize=d;
+        
+    }
+
+   
     
  public void addMember(Member member) {
     	
         members.add(member);
         
-       member.getnodesList();
+      // member.getnodesList();
+       addMemberMidPointCoordinate(member);
     
     }
  
@@ -198,7 +264,31 @@ public class DrawPanel extends JPanel {
 
  
  }
+ public void  addMemberMidPointCoordinate(Member m) {
+
+ 	memberMidPointCoordinates.add(m.getMidPoint());
+  
+ }
  
+
+public ArrayList<Point>  sortMemberMidPointCoordinate() {
+
+	//members.sort(Comparator.comparing(Member::getX));
+ 	
+ 	Collections.sort(members , new MemberComparator());
+	//members.so
+ 	//members.sort(<Point> members.get(i).getMidPoint());
+ 	for(int i=0;i< members.size();i++) {
+ 		//members.sort( members.get(i).getMidPoint());
+ 		members.get(i).setMemberNum(i);
+ 		System.out.println( members.get(i).getMidPoint()+"MidPoint"+members.get(i).getNumber()+" , "+members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
+ 		//System.out.println(members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
+ 	}
+ 	System.out.println();
+
+ return  memberMidPointCoordinates ;
+  
+ }
     
     public void  addFixture() {
     
@@ -227,6 +317,12 @@ public class DrawPanel extends JPanel {
     public void addShear(DrawShear drawShear) {
     	
     	drawshear.add(drawShear);
+    	
+    }
+    
+  public void addBending(DrawBending drawBending) {
+    	
+    	drawbending.add(drawBending);
     	
     }
     
@@ -334,7 +430,9 @@ public class DrawPanel extends JPanel {
   public void deleteShearDiagram() {
 	  drawshear.clear();
   }
-
+  public void deleteBendingDiagram() {
+	  drawbending.clear();
+  }
     public boolean containsNode(Node n) {
     	
     	boolean result = false ;
@@ -381,6 +479,7 @@ public class DrawPanel extends JPanel {
     	return nodenum;
     
     }
+  
     
     int[] beamset;
     
@@ -407,15 +506,18 @@ public class DrawPanel extends JPanel {
     
     }
     public void setZoom(double zoom) {
-    	//System.out.println(zoom);
+    	//System.out.println(zoom + "zoom");
+    	zoom=Math.round(zoom*10.0)/10.0;
+    	//System.out.println(zoom + "zoom2");
     	this.scale=zoom;
     	
     	//System.out.println(scale);
     }
+
     
     public void setTranslate(int dx, int dy) {
     	this.tranx=dx;
-    	this.tranx=dy;
+    	this.trany=dy;
     }
     
     public ArrayList<String> getFixtureType(){
@@ -444,40 +546,22 @@ public class DrawPanel extends JPanel {
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
         Graphics2D g2d = (Graphics2D) grphcs;
-       // g2d.setColor(Color.DARK_GRAY);
- 
-        
-        
-        double width = getWidth();
-        double height = getHeight();
 
-        double zoomWidth = width * scale;
-        double zoomHeight = height * scale;
-
-        double anchorx = (width - zoomWidth) / 2;
-        double anchory = (height - zoomHeight) / 2;
-    
-        
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-       // ArrayList<Integer> x=CreateGrid.XGridpoints;
-		//ArrayList<Integer> y=CreateGrid.YGridpoints;
-		
-		//int s= x.size();
-	//g2d.translate(anchorx, anchory);
-	//	g2d.translate(tranx, trany);
-	//g2d.scale(scale, scale);
-		
+      
+       AffineTransform at = g2d.getTransform();
+
+      
+        at.translate(tranx, trany);
+        at.scale(scale, scale);
+        at.translate(-tranx, -trany);
+        g2d.setTransform(at);
+     
 		g2d.setColor(Color.lightGray);
 		drawGrid(g2d);
-		 
 		
-		//g2d.translate(anchorx, anchory);
-		//	g2d.translate(tranx, trany);
-		//g2d.scale(scale, scale);
-		//for (int i= 0; i<s; i++) {
-		//	for (int ii = 0; ii<s; ii++) {
-				
+
 				
 				g2d.setColor(Color.lightGray);
 			//	g2d.drawRect(x.get(i), y.get(ii),10, 10);
@@ -486,10 +570,12 @@ public class DrawPanel extends JPanel {
 				
 	
         for (Node node : nodesfilterd) {
-
+        	
+        	
         	
         			node.drawNode(g2d);
-        	
+        			if(hideForces ==false) {
+        				
         			if(fixtures.get(node.getNodeNumber()-1).matches("Pinned") ){
         			
         			node.drawFixturePinned(g2d);
@@ -504,7 +590,10 @@ public class DrawPanel extends JPanel {
           			node.drawFixtureSliding(g2d);
           		//}
         	}
+        		 
+        		 
         	 for (Forces force:forces) {
+        		 
         		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Point")) {
         			 //System.out.println("hereforce2");
      				force.drawPointLoad(g2d);
@@ -518,6 +607,7 @@ public class DrawPanel extends JPanel {
         		
 
         }
+        }
             
 
             	for (Member member :members) {
@@ -525,23 +615,25 @@ public class DrawPanel extends JPanel {
             	member.drawBeam(g2d);
            
        			 count4++;
+       			 if(hideForces ==false) {
        			 for (Forces force:forces) {
-       		
+       				 
+       				
+       					 
        				 if (member.getNumber() == force.getNumber() && force.getType().matches("Point")) {
-      				force.drawPointLoad(g2d);
-				 }
+       					 force.drawPointLoad(g2d);
+       				 }
        				 if (member.getNumber() == force.getNumber() && force.getType().matches("UDL")) {
-           				force.drawUDL(g2d, member);
+       					 force.drawUDL(g2d, member);
      				 }
-       				if (member.getNumber() == force.getNumber() && force.getType().matches("Moment")) {
-           				force.drawMoment(g2d);
+       				 if (member.getNumber() == force.getNumber() && force.getType().matches("Moment")) {
+       					 force.drawMoment(g2d);
      				 }
-       				
-       				
-        		}
+        		
+       			 }
        			 
             	}
-            	
+            	}
             	for (DrawReactions drawreaction:drawreactions) {
             		drawreaction.drawReactions(g2d);
             	}
@@ -551,20 +643,27 @@ public class DrawPanel extends JPanel {
             	for (DrawShear drawshear:drawshear) {
             		drawshear.drawShear(g2d);
             	}
+            	for (DrawBending drawbending:drawbending) {
+            		drawbending.drawBending(g2d);
+            	}
             	
             	//TempMember tempmember = new TempMember();
             	//
             	for (TempMember tempmember:tempmember) {
             		//drawdisplacement.drawDisplacments(g2d);
             		tempmember.drawTemp(g2d);
+            		
+            		//tempmember.drawCurrent(g2d);
             		//tempmember.clear();
             	//tempmember.clear();
             		}
+            	
             	tempmember.clear();
             	
             	}
     
-    public void clearDrawPanel() {
+   
+	public void clearDrawPanel() {
     	
     	nodes.clear();
 		nodesfilterd.clear();
@@ -577,6 +676,9 @@ public class DrawPanel extends JPanel {
 		repaint();
     }
     
+    public void setHideForces(boolean hideforce) {
+    	hideForces = hideforce;
+    }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
      public void saveToFile(File file ) throws IOException {
     	 
@@ -656,10 +758,12 @@ public class DrawPanel extends JPanel {
            }
      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////      	
            // }
+
+		public void drawCurrentCoordinates(int x, int y) {
+			// TODO Auto-generated method stub
+			
+		}
        
 
-//    @Override
-//    public Dimension getPreferredSize() {
-//        return new Dimension(600, 600);
-//    }
+ 
 }

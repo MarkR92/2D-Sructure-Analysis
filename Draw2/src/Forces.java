@@ -1,3 +1,4 @@
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -27,24 +28,26 @@ public class Forces implements Serializable {
 	private boolean highlighted;
 	private boolean selected;
 	
-	private Point firstlocation;
-	private Point location;
+	private Point midpointlocation;
+	private Point currentlocation;
 	
 	private double rotation;
 	
 	private double angle;
+	private double angle2;
 	private Point start;
 	private Point end;
 	
-	public Forces(double magnitude, String type, String direction, String direction2, int beamnumber, Point firstlocation, double angle, Point start, Point end) {
+	public Forces(double magnitude, String type, String direction, String direction2, int beamnumber, Point midpointlocation, double angle,double angle2, Point start, Point end) {
 		
 		this.magnitude=magnitude;
 		this.type = type;
 		this.direction= direction;
 		this.direction2= direction2;
 		this.beamnumber= beamnumber;
-		this.firstlocation= firstlocation;
+		this.midpointlocation= midpointlocation;
 		this.angle = angle;
+		this.angle2=angle2;
 		highlighted = false;
 		selected = false;
 		
@@ -52,9 +55,12 @@ public class Forces implements Serializable {
 		this.end=end;
 	}
 	
-	public double getAngle() {
-		return angle;
-		
+//	public double getAngle() {
+//		return angle;
+//		
+//	}
+	public double convertAngle() {
+		return Math.toRadians(angle2);
 	}
 	public double setAngle() {
 		
@@ -62,6 +68,7 @@ public class Forces implements Serializable {
 		return angle;
 		
 	}
+	
 	public double getMagnitude() {
 		 
 		return magnitude;
@@ -70,9 +77,12 @@ public class Forces implements Serializable {
 		 
 		return direction2;
 		}
+	public double getAngle2() {
+		return angle2;
+	}
 	
-	public double setMagnitude() {
-		return magnitude;
+	public void setMagnitude(double magnitude) {
+		this.magnitude=magnitude;
 		}
 	
 	public String getType() {
@@ -81,19 +91,19 @@ public class Forces implements Serializable {
 	
 	public Point getLocation() {
 
-		if (location == null) {
-			 this.location=firstlocation;	
+		if (currentlocation == null) {
+			 this.currentlocation=midpointlocation;	
 		}
 	
-			return this.location;
+			return this.currentlocation;
 	}
 	
 	public Point setLocation(int xx, int yy) {
 		
 		
-		Point location = new Point(xx,yy);
-		this.location=location;
-		return location;
+		Point currentlocation = new Point(xx,yy);
+		this.currentlocation=currentlocation;
+		return currentlocation;
 
 			
 		}
@@ -106,32 +116,22 @@ public class Forces implements Serializable {
 	
 	public void drawPointLoad(Graphics2D gp) {
 	getLocation();
-	//JLabel label = new JLabel(" ");
-	if(direction2.matches("Parallel")) {
-			rotation= -Math.PI/2;
-		}
+	
+			rotation= -convertAngle();
+	System.out.println(angle+","+"force");
 	 		if (direction == "Up") {
 	 			
 	 			AffineTransform old = gp.getTransform();
 				
 	 			//Rotate graphic so it is perpendicular to beam
-				gp.rotate((angle+rotation),(location.x),(location.y));
+	 			
+				gp.rotate((angle+rotation),(currentlocation.x),(currentlocation.y));
 				
-				gp.setColor( Color.GREEN);
-				gp.fillPolygon(new int[] {(location.x), (location.x)+5, (location.x)-5}, new int[] {(location.y), (location.y)+10, (location.y)+10}, 3);
-				gp.drawLine(location.x, location.y+10, location.x, location.y+30);
-				
-				gp.setColor( Color.BLACK);
-				gp.drawPolygon(new int[] {(location.x), (location.x)-5, (location.x)+5}, new int[] {(location.y), (location.y)+10, (location.y)+10}, 3);
-				gp.drawLine(location.x, location.y+10, location.x, location.y+30);
-				
-//				gp.setColor( Color.RED);
-//				gp.drawLine(location.x-50,location.y+30,location.x+50,location.y+30);
-				
+				drawPointLoadGraphic(gp,1);
+
 				if (highlighted||selected) {
-				gp.drawRect(location.x-5, location.y, 10,30);
-				//gp.drawString(location.toString(), location.x-5, location.y-5);
-				//System.out.println(location.toString());
+				gp.drawRect(currentlocation.x-5, currentlocation.y, 10,30);
+			
 				
 				
 				}
@@ -144,40 +144,25 @@ public class Forces implements Serializable {
 			
 			AffineTransform old = gp.getTransform();
 			
-			gp.rotate((angle+rotation),(location.x),(location.y));
-			
-			gp.setColor( Color.GREEN);
-		 	gp.fillPolygon(new int[] {(location.x), (location.x)-5, (location.x)+5}, new int[] {(location.y), (location.y)-10, (location.y)-10}, 3);
-		 	gp.drawLine(location.x, location.y-10, location.x, location.y-30);
-		 	
-		 	gp.setColor( Color.BLACK);
-		 	gp.drawPolygon(new int[] {(location.x), (location.x)-5, (location.x)+5}, new int[] {(location.y), (location.y)-10, (location.y)-10}, 3);
-		 	gp.drawLine(location.x, location.y-10, location.x, location.y-30);
+			gp.rotate((angle+rotation),(currentlocation.x),(currentlocation.y));
 
 		 	if (highlighted||selected) {
-		 	gp.drawRect(location.x-5, location.y-30, 10,30);
+		 //	gp.drawRect(currentlocation.x-5, currentlocation.y-30, 10,30);
 		 	
 		 	String mag=String.valueOf(magnitude); 
+			gp.setColor( Color.black);
+		 	gp.drawString(mag +"kN",currentlocation.x+10,currentlocation.y-20);
 		 	
-		 	gp.drawString(mag +"kN",location.x+10,location.y-20);
-		 	
-			//gp.drawLine(location.x,location.y-30,b.x2,location.y-30);
-		 	
-			if(selected) {
-				
-			String dx =Integer.toString(Math.abs(location.x-end.x)); 
-			String dy =Integer.toString(Math.abs(location.x-start.x));
 			
-			if(start.x- end.x ==0) {
-				
-				 dx =Integer.toString(Math.abs(location.y-end.y)); 
-				 dy =Integer.toString(Math.abs(location.y-start.y));
-			}
-		 	gp.drawString(dx + ","+ dy,location.x-20,location.y-35);
+			drawPositionGraphics(gp);
+		 	drawMeasurementGraphics(gp);
 		 	
-			}
+			float opacity = 0.25f;
+	 		gp.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+			
 		 	}
 		 	
+		 	drawPointLoadGraphic(gp,-1);
 
 		 	
 		 	gp.setTransform(old);
@@ -185,7 +170,50 @@ public class Forces implements Serializable {
 		 	}
 	
 	}
-	
+	public void drawPointLoadGraphic(Graphics2D g,int changesign) {
+		//change sign is used to rotate positive/negative point load 180 degree
+		//1 points the graphic up and -1 points the graphic down
+		
+		g.setColor( Color.GREEN);
+		g.fillPolygon(new int[] {(currentlocation.x), (currentlocation.x)+5*changesign, (currentlocation.x)-5*changesign}, new int[] {(currentlocation.y), (currentlocation.y)+10*changesign, (currentlocation.y)+10*changesign}, 3);
+		g.drawLine(currentlocation.x, currentlocation.y+10*changesign, currentlocation.x, currentlocation.y+30*changesign);
+		
+		g.setColor( Color.BLACK);
+		g.drawPolygon(new int[] {(currentlocation.x), (currentlocation.x)-5, (currentlocation.x)+5}, new int[] {(currentlocation.y), (currentlocation.y)+10*changesign, (currentlocation.y)+10*changesign}, 3);
+		g.drawLine(currentlocation.x, currentlocation.y+10*changesign, currentlocation.x, currentlocation.y+30*changesign);
+		
+		
+	}
+	public void drawMeasurementGraphics(Graphics2D g) {
+		
+//		AffineTransform old = g.getTransform();
+//		
+//		g.rotate((-angle*0.5),(end.x),(end.y));
+		
+		g.setColor( Color.GRAY);
+		g.drawLine(midpointlocation.x,end.y-30, currentlocation.x, currentlocation.y-30);					//line
+		g.drawLine(end.x, end.y-35, end.x, end.y-25);							//start point line
+		g.drawLine(currentlocation.x, currentlocation.y-35, currentlocation.x, currentlocation.y-25);		//end point line
+	//	g.setTransform(old);
+		
+		
+	}
+	public void drawPositionGraphics(Graphics2D g) {
+		
+		g.setColor( Color.GRAY);
+		double dx =(Math.abs(currentlocation.getX()-end.getX())/10/2); 
+		double dy =(Math.abs(currentlocation.getX()-start.getX())/10/2);
+		
+		if(start.x- end.x ==0) {
+			
+
+			 dx =(Math.abs(currentlocation.getY()-end.getY())/10/2); 
+			 dy =(Math.abs(currentlocation.getY()-start.getY())/10/2);
+		}
+	 	  
+	 	g.drawString(dx + ","+ dy,currentlocation.x-8,currentlocation.y-35);
+	 	
+	}
 	public void drawUDL(Graphics2D g,Member b) {
 		getLocation();
 			if (direction.matches("Down")) {
@@ -297,27 +325,27 @@ public class Forces implements Serializable {
  			AffineTransform old = gm.getTransform();
 			
  			//Rotate graphic so it is perpendicular to beam
-			gm.rotate((angle),(location.x),(location.y));
+			gm.rotate((angle),(currentlocation.x),(currentlocation.y));
 			
 			gm.setColor( Color.GREEN);
-			gm.fillPolygon(new int[] {(location.x), (location.x)+10, (location.x)}, new int[] {(location.y+10), (location.y)+15, (location.y)+20}, 3);
-			gm.drawArc(location.x-15, location.y-15,30, 30, 90, 180);
-			//gm.drawLine(location.x, location.y+10, location.x, location.y+30);
+			gm.fillPolygon(new int[] {(currentlocation.x), (currentlocation.x)+10, (currentlocation.x)}, new int[] {(currentlocation.y+10), (currentlocation.y)+15, (currentlocation.y)+20}, 3);
+			gm.drawArc(currentlocation.x-15, currentlocation.y-15,30, 30, 90, 180);
+			//gm.drawLine(currentlocation.x, currentlocation.y+10, currentlocation.x, currentlocation.y+30);
 			
 			gm.setColor( Color.BLACK);
-			gm.drawPolygon(new int[] {(location.x), (location.x)+10, (location.x)}, new int[] {(location.y+10), (location.y)+15, (location.y)+20}, 3);
-			gm.drawArc(location.x-15, location.y-15,30, 30, 90, 180);
-//			gm.drawPolygon(new int[] {(location.x), (location.x)-5, (location.x)+5}, new int[] {(location.y), (location.y)+10, (location.y)+10}, 3);
-//			gm.drawLine(location.x, location.y+10, location.x, location.y+30);
+			gm.drawPolygon(new int[] {(currentlocation.x), (currentlocation.x)+10, (currentlocation.x)}, new int[] {(currentlocation.y+10), (currentlocation.y)+15, (currentlocation.y)+20}, 3);
+			gm.drawArc(currentlocation.x-15, currentlocation.y-15,30, 30, 90, 180);
+//			gm.drawPolygon(new int[] {(currentlocation.x), (currentlocation.x)-5, (currentlocation.x)+5}, new int[] {(currentlocation.y), (currentlocation.y)+10, (currentlocation.y)+10}, 3);
+//			gm.drawLine(currentlocation.x, currentlocation.y+10, currentlocation.x, currentlocation.y+30);
 			
 			if (highlighted||selected) {
-			gm.drawRect(location.x-5, location.y, 10,30);
-			//gp.drawString(location.toString(), location.x-5, location.y-5);
-			//System.out.println(location.toString());
-			
+			//gm.drawRect(currentlocation.x-5, currentlocation.y, 10,30);
+			//gp.drawString(currentlocation.toString(), currentlocation.x-5, currentlocation.y-5);
+			//System.out.println(currentlocation.toString());
+			gm.setColor(Color.red);
 			
 			}
-			
+
 			gm.setTransform(old);
  	
  	}
@@ -328,18 +356,19 @@ public class Forces implements Serializable {
 		
 		
 		gm.setColor( Color.GREEN);
-		gm.fillPolygon(new int[] {(location.x), (location.x)+10, (location.x)}, new int[] {(location.y-20), (location.y)-15, (location.y)-10}, 3);
-		gm.drawArc(location.x-15, location.y-15,30, 30, 90, 180);
-		//gm.drawLine(location.x, location.y+10, location.x, location.y+30);
+		gm.fillPolygon(new int[] {(currentlocation.x), (currentlocation.x)+10, (currentlocation.x)}, new int[] {(currentlocation.y-20), (currentlocation.y)-15, (currentlocation.y)-10}, 3);
+		gm.drawArc(currentlocation.x-15, currentlocation.y-15,30, 30, 90, 180);
+		//gm.drawLine(currentlocation.x, currentlocation.y+10, currentlocation.x, currentlocation.y+30);
 		
 		gm.setColor( Color.BLACK);
-		gm.drawPolygon(new int[] {(location.x), (location.x)+10, (location.x)}, new int[] {(location.y-20), (location.y)-15, (location.y)-10}, 3);
-		gm.drawArc(location.x-15, location.y-15,30, 30, 90, 180);
+		gm.drawPolygon(new int[] {(currentlocation.x), (currentlocation.x)+10, (currentlocation.x)}, new int[] {(currentlocation.y-20), (currentlocation.y)-15, (currentlocation.y)-10}, 3);
+		gm.drawArc(currentlocation.x-15, currentlocation.y-15,30, 30, 90, 180);
 	 	
 	 	if (highlighted||selected) {
-	 	gm.drawRect(location.x-5, location.y-30, 10,30);
-	 	//gp.drawString(location.toString(), location.x-30, location.y-30);
-		//System.out.println(location.toString().);
+	 	//gm.drawRect(currentlocation.x-5, currentlocation.y-30, 10,30);
+	 	//gp.drawString(currentlocation.toString(), currentlocation.x-30, currentlocation.y-30);
+		//System.out.println(currentlocation.toString().);
+	 		gm.setColor(Color.red);
 	 	}
 	 	
 	 	gm.setTransform(old);
@@ -352,9 +381,9 @@ public class Forces implements Serializable {
 		
 		getLocation();
 		if (direction.matches("Up")) {
-			//System.out.println(location.getX() +" , " +location.getY());
-		Double rect = new Rectangle2D.Double(location.getX()-5, location.getY(), 10,30);
-		AffineTransform at = AffineTransform.getRotateInstance(angle+rotation, location.getX(), location.getY());
+			//System.out.println(currentlocation.getX() +" , " +currentlocation.getY());
+		Double rect = new Rectangle2D.Double(currentlocation.getX()-5, currentlocation.getY(), 10,30);
+		AffineTransform at = AffineTransform.getRotateInstance(angle+rotation, currentlocation.getX(), currentlocation.getY());
 		Shape rotatedRect = at.createTransformedShape(rect);
 
 		return rotatedRect;
@@ -362,8 +391,8 @@ public class Forces implements Serializable {
 		}
 		else {
 			
-			Double rect = new Rectangle2D.Double(location.getX()-5, location.getY()-30, 10,30);
-			AffineTransform at = AffineTransform.getRotateInstance(angle+rotation, location.getX(), location.getY());
+			Double rect = new Rectangle2D.Double(currentlocation.getX()-5, currentlocation.getY()-30, 10,30);
+			AffineTransform at = AffineTransform.getRotateInstance(angle+rotation, currentlocation.getX(), currentlocation.getY());
 			Shape rotatedRect = at.createTransformedShape(rect);
 			
 			return rotatedRect;

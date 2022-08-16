@@ -32,8 +32,7 @@ public class Displacements {
 				//U[col]=0;
 			U[row] += (K[row][col]*F[col])*1000*1000;
 			
-			
-			//System.out.print(F[col] + "   h");
+		//System.out.print(F[col] + "   h");
 			}
 			System.out.print(U[row] + " U  ");
 			
@@ -130,9 +129,12 @@ public class Displacements {
 		
 		int j = 0;
 		//System.out.println(beamnumber);
-		for (int i=beamnumber*3;i<6; i++) {
+		for (int i=beamnumber*3;i<6+beamnumber*3; i++) {
 		Ulocal[j]=Uglobal[i]; 
+		
+		//System.out.println(Ulocal[j]);
 		j++;
+		
 		}
 		
 		for(int i=0;i<6;i++) {
@@ -147,7 +149,7 @@ public class Displacements {
 			}
 		}
 		for (int i =0; i<6;i++) {
-		//	System.out.println(Ulocalprime[i] + "L ");
+			//System.out.println(Ulocalprime[i] + "L ");
 			}
 		System.out.println();
 		return Ulocalprime;

@@ -19,6 +19,8 @@ public class MenuBar extends JMenuBar implements ActionListener{
 	private JMenuItem saveasItem;
 	private JMenuItem exitItem;
 	
+	private JMenuItem materialItem;
+	
 	private MenuBarListener menuItemListener;
 
 	  public MenuBar() {
@@ -33,6 +35,8 @@ public class MenuBar extends JMenuBar implements ActionListener{
 			saveasItem = new JMenuItem("Save As...");
 			exitItem = new JMenuItem("Exit");
 
+			materialItem = new JMenuItem("Material Libary");
+			
 			fileMenu.add(newItem);
 			fileMenu.add(openItem);
 			fileMenu.addSeparator();
@@ -41,6 +45,7 @@ public class MenuBar extends JMenuBar implements ActionListener{
 			fileMenu.addSeparator();
 			fileMenu.add(exitItem);
 			
+			editMenu.add(materialItem);
 			
 			newItem.addActionListener(this);
 			openItem.addActionListener(this);
@@ -48,6 +53,7 @@ public class MenuBar extends JMenuBar implements ActionListener{
 			saveasItem.addActionListener(this);
 			exitItem.addActionListener(this);
 			
+			materialItem.addActionListener(this);
 			
 			fileMenu.setMnemonic(KeyEvent.VK_F);
 			exitItem.setMnemonic(KeyEvent.VK_X);
@@ -105,6 +111,12 @@ public class MenuBar extends JMenuBar implements ActionListener{
 				menuItemListener.stringEmitted("Exit");
 	}
 }	
+		if(isclicked == materialItem) {
+			System.out.println(menuItemListener);
+			if(menuItemListener != null) {
+				menuItemListener.stringEmitted("Material");
+	}
+}
 	
 }
 

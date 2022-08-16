@@ -27,8 +27,12 @@ public class Member implements Serializable {
 	private int[] doflist;
 	
 	private String forcetype="None";
-	private Color color;
 	
+	private double[] reactions= new double[6];
+	private double[] globalreactions= new double[6];
+	private double[] blownupglobalreactions= new double[dof];
+	private Color color;
+	private Point forcelocation;
 	private boolean selected;
 	private boolean highlighted;
 	
@@ -39,6 +43,12 @@ public class Member implements Serializable {
 	private double Ma;
 	private double Mb;
 	
+	private double E=200*Math.pow(10, 9);
+	private double A = 0.0006;
+	public double I = 60*Math.pow(10, -6);
+	private String materialname="Default";
+	
+	//private double L;
 	
 	Member(int x1, int y1, int x2, int y2, int number, int dof, int nodenum,int start,int end) {
 		
@@ -54,20 +64,26 @@ public class Member implements Serializable {
 	   this.dof = dof;
 	    
 	}
-	 public int setStart(int start) {
+	 public void setStart(int start) {
 		 this.start=start;
-		 return start;
+		 
 	 }
-	 public int setEnd(int end) {
+	 public void setEnd(int end) {
 		 this.end=end;
-		 return end;
+		 
 	 }
 	public int getNodeNumber() {
 		
 		return nodenum;
 	}
-	
-	public int[] getnodesList(){
+	  public int setMemberNum(int membernum) {
+	    	
+	    	this.number=membernum;
+	    	
+	    	return number;
+	    
+	    }
+	public int[] getNodesList(){
 		
 
 	int[]	nodelist = {start,end};
@@ -102,13 +118,39 @@ public class Member implements Serializable {
 		
 	}
 	
-	public int[] getNodeDOFList(){
+	public int[] calculateNodeDOFList2(int start,int end) {
+
+		vs=start*3-2;
+		hs=vs+1;
+		rs=hs+1;
 		
+
+		ve=end*3-2;
+		he=ve+1;
+		re=he+1;
+	
+	
+	int[]	dofnodelist = {vs,hs,rs,ve,he,re};
+	
+	
+	for(int j = 0; j<dofnodelist.length; j++) {
+		//System.out.print(dofnodelist[j]+ "," );
+		//System.out.println(dofnodelistend[j]);
+		}
+	//	System.out.println();
+		
+		doflist=dofnodelist;
+	return dofnodelist;
+	
+}
+	
+	public int[] getNodeDOFList(){
+		System.out.println("Node dof List");
 		for(int j = 0; j<doflist.length; j++) {
-			//System.out.print(doflist[j]+ "," );
+			System.out.print(doflist[j]+ "," );
 			////System.out.println(dofnodelistend[j]);
 			}
-			//System.out.println();
+			System.out.println();
 		
 		return doflist;
 		
@@ -124,6 +166,16 @@ public class Member implements Serializable {
 		Point memberend = new Point(x2,y2);
 		
 		return memberend;
+	}
+	public void setMemberStart(int x, int y) {
+		x1=x;
+		y1=y;
+		
+	}
+	public void setMemberEnd() {
+		Point memberend = new Point(x2,y2);
+		
+		
 	}
 	public int getDOF() {
 		dof = dof *3;
@@ -157,42 +209,55 @@ public class Member implements Serializable {
 	
 	public double getCosTheta() {
 		double costheta = getDeltaX()/getLength();
-		//System.out.println(costheta + "cos");
+		System.out.println(costheta + "cos");
+		System.out.println(getDeltaX()+"dX");
 		return costheta;
 	}
 	
 	public double getSinTheta() {
 		double sintheta = getDeltaY()/getLength();
-		//System.out.println(sintheta + "sin");
+		System.out.println(sintheta + "sin");
+		System.out.println(getDeltaY()+"dy");
 		return sintheta;
 	}
 	
 	public double getE() {
-		double n =Math.pow(10, 9);
-		double E = 200*n;
-		
+
 		return E;
 	}
+	public void setE(double E) {
+		this.E=E;
+	}
 	public double getA() {
-		double A = 0.0006;
 		
 		return A;
 	}
+	public void setA(double A) {
+		this.A=A;
+	}
 	public double getI() {
-		double n =Math.pow(10, -6);
-		double I = 60*n;
+
 		return I ;
+	}
+	public void setI(double I) {
+		this.I=I;
+	}
+	public String getMaterialName() {
+
+		return materialname ;
+	}
+	public void setMaterialName(String materialname) {
+		
+		this.materialname=materialname;
 	}
 	
 	public double[][] getLocalKPrime() {
 		
-		double E = getE();
-		double A = getA();
 		double L = getLength();
 		double lpow3 = Math.pow(L, 3);
 		double lpow2 = Math.pow(L, 2);
 		
-		double I = getI();
+		//double I = getI();
 		
 		
 		double k[][] = {
@@ -220,7 +285,49 @@ public class Member implements Serializable {
 				{ 0, 	0,	0, -s,	c,  0},
 				{ 0,	0,	0,	0,	0,	1}	
 		};
+		
+			
 		return b;
+	}
+	public double[][] setBeta(double angle){
+		double c = getCosTheta();
+		double s = getSinTheta();
+		
+		double c1 = calculateDeltaAngleCos(angle,getCosTheta());
+		double s1 = calculateDeltaAngleSin(angle,getSinTheta());
+		
+		
+		double b[][] = {
+				{ c,	s,	0,	0,	0,	0},
+				{-s,	c,	0,  0,	0,	0},
+				{ 0,	0,	1,  0, 	0,  0},
+				{ 0,    0,	0,	c1, s1, 0},
+				{ 0, 	0,	0, -s1,	c1, 0},
+				{ 0,	0,	0,	0,	0,	1}	
+		};
+		return b;
+	}
+	public double calculateDeltaAngleCos(double angle,double oldangle) {
+		
+		angle=Math.toRadians(Math.abs(angle));
+		oldangle=Math.acos(oldangle);
+		double delta_angle=angle+oldangle;
+		delta_angle=Math.cos(delta_angle);
+		
+		System.out.println(delta_angle);
+		
+		return delta_angle;
+	}
+	public double calculateDeltaAngleSin(double angle,double oldangle) {
+		
+		angle=Math.toRadians(angle);
+		oldangle=Math.asin(oldangle);
+		double delta_angle=angle+oldangle;
+		delta_angle=Math.sin(delta_angle);
+		System.out.println(delta_angle);
+		
+		
+		return delta_angle;
 	}
 	public double[][] getBetaT(){
 		
@@ -232,13 +339,15 @@ public class Member implements Serializable {
 			for(int j=0;j<6;j++) {
 				
 				bt[i][j]= b [j][i];
+			
 			}
+			
 		}
 		
 		return bt;
 	}
 	
-	public double[][] getLocalK() {
+	public double[][] getLocalStiffness() {
 
 		double[][] k = getLocalKPrime();
 		double[][] b = getBeta();
@@ -262,6 +371,7 @@ public class Member implements Serializable {
 			//System.out.println();
 			
 		}
+		System.out.println("Member" +  number);
 		for(int i=0;i<6;i++) {
 			for(int j=0;j<6;j++) {
 				K[i][j]=0;
@@ -269,38 +379,62 @@ public class Member implements Serializable {
 					
 					K[i][j]+=(Kt[i][z]*b[z][j]);
 				}
-				//System.out.print(K[i][j] +" ");
+				System.out.print(K[i][j] +" ");
 				
 			}
-			//System.out.println();
+			System.out.println();
 			
 		}
 		return K;
 	}
 	
-
-public void calculateMemberReaction(double P, Point ab) {
-	
-	double L = getLength();
-	double a = Math.abs(ab.getX()-x2);
-	double b = Math.abs(ab.getX()-x1);
-	
-	double a2 = Math.pow(a, 2);
-	double b2 = Math.pow(b, 2);
-	
-	double L2 = Math.pow(L, 2);
-	double L3 = Math.pow(L, 3);
-	
-
-	
-	 Ra = (P*b2*(3*a+b))/L3;
-	 Rb = (P*a2*(a+b*3))/L3;
-	
-	 Ma = (P*b2*a)/L2;
-	 Mb = (P*b*a2)/L2;
-	//System.out.println(a +"," +b);
+public void initialMemberReactions() {
+ 
+	 for(int i=0;i<6;i++) {
+		 reactions[i]=0;
+	 }
+	;
+}
+public double[] getInitialMemberReactions() {
+	 for(int i=0;i<6;i++) {
+		 System.out.print(reactions[i]+" m ");
+	 }
+	 System.out.println();
+	return reactions;
 	
 }
+public void setMemberReactions(double[] reactions) {
+	this.reactions=reactions;
+	
+}
+
+public void setGlobalMemberReactions(double[] reactions) {
+	this.globalreactions=reactions;
+	
+}
+
+public double[] getGlobalMemberReactions() {
+	 for(int i=0;i<6;i++) {
+		 System.out.print(globalreactions[i]+" mg ");
+	 }
+	 System.out.println();
+	return globalreactions;
+	
+}
+public void setBlownuplMemberReactions(double[] reactions) {
+	this.blownupglobalreactions=reactions;
+	
+}
+public double[] getBlownupGlobalMemberReactions() {
+	 for(int i=0;i<dof;i++) {
+		 System.out.print(blownupglobalreactions[i]+" mb ");
+	 }
+	 System.out.println();
+	return blownupglobalreactions;
+	
+}
+
+
  public double getRa() {
 	 
 	 return Ra;
@@ -343,7 +477,7 @@ public void calculateMemberReaction(double P, Point ab) {
 	public void calculateYintercept() {
 		//y = mx +c
 		//c=y-mx
-		double c = (y2-y1)-(x2-x1)*getSlope();
+		//double c = (y2-y1)-(x2-x1)*getSlope();
 		//System.out.println(getSlope());
 		//System.out.println(c/10/2+ "intercept");
 	}
@@ -422,7 +556,9 @@ public double[] intialLocalForces() {
 	    	color = Color.RED;
 	    	
 	    	g2d.rotate((getAngle()),getMidPoint().getX(),getMidPoint().getY());
-	    	g2d.drawString(String.valueOf(getLength()), (int)getMidPoint().getX()-8,(int)getMidPoint().getY()-10);
+	    	//g2d.drawString(String.valueOf(getLength()), (int)getMidPoint().getX()-8,(int)getMidPoint().getY()-10);
+	    	g2d.drawString(number + "",   (int)getMidPoint().getX()-8,  + (int)getMidPoint().getY()-10);//draw the number of node
+	    	
 	    	g2d.setTransform(old);
 	    	
 	    }else {
@@ -431,17 +567,19 @@ public double[] intialLocalForces() {
 	 
 	    g2d.drawLine(x1,y1,x2,y2);
 	    
-	   // g2d.setTransform(old);
+	  
+//	    Double rect = new Rectangle2D.Double(getMidPoint().getX()-getLength()*10+5,getMidPoint().getY()-5,getLength()*10*2-10,10);
 		
-	    g2d.rotate((getAngle()),getMidPoint().getX(),getMidPoint().getY());
-	    
-	   // g2d.drawRect((int)getMidPoint().getX()-5,(int)getMidPoint().getY()-5,10, 10);
-	    
+//		AffineTransform at = AffineTransform.getRotateInstance(getAngle(), getMidPoint().getX(), getMidPoint().getY());
+//		
+//		Shape rotatedRect = at.createTransformedShape(rect);
+		
+		//g2d.draw(rotatedRect);
 	    g2d.setTransform(old);
 	    
 	    g2d.setColor(prevColor);
 	    
-	   // g2d.drawRect(x2, y2, (int) getLength()*2*10, 10);
+	  // g2d.drawRect(x2, y2, (int) getLength()*2*10, 10);
 	    return g2d;
 	}
 
@@ -493,11 +631,12 @@ public Point createBounds() {
 	
 }
 public Shape getbounds() {
-	
+
 	//g2d.rotate((getAngle()),getMidPoint().getX(),getMidPoint().getY());
     
     //g2d.drawRect((int)getMidPoint().getX()-5,(int)getMidPoint().getY()-5,10, 10);
-	Double rect = new Rectangle2D.Double(getMidPoint().getX()-5,getMidPoint().getY()-5,10,10);
+	//Double rect = new Rectangle2D.Double(getMidPoint().getX()-5,getMidPoint().getY()-5,10,10);
+	Double rect = new Rectangle2D.Double(getMidPoint().getX()-getLength()*10+5,getMidPoint().getY()-5,getLength()*10*2-10,10);
 	
 	AffineTransform at = AffineTransform.getRotateInstance(getAngle(), getMidPoint().getX(), getMidPoint().getY());
 	
@@ -508,7 +647,7 @@ public Shape getbounds() {
 public Rectangle2D getBounds() {
 	Point p = createBounds();
 	
-    return new Rectangle2D.Double(p.x-5, p.y-5, 10, 1);
+    return new Rectangle2D.Double(p.x-5, p.y-5, 10, 5);
 }
 
 //public Line2D getBounds() {
@@ -537,7 +676,27 @@ public void setForceType(String forcetype) {
 	
 }
 public String getForceType() { 
+	System.out.println(forcetype);
 	return this.forcetype;
+	
+}
+public void setReactions(double[] reactions) {
+	this.reactions=reactions;
+	
+	for(int i=0; i<6; i++) {
+		//System.out.println(reactions[i]+"reactions");
+	}
+	//System.out.println();
+}
+public double[] getReactions() {
+	return reactions;
+}
+public void setForceLocation(Point location) {
+	this.forcelocation=location;
+	
+}
+public Point getForceLocation() {
+	return forcelocation;
 	
 }
 }

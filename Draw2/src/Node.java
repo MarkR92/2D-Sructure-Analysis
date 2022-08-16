@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
@@ -23,8 +24,7 @@ private boolean selected;
 private boolean highlighted;
 private boolean toAdd;
 private int dof;
-//private Point coord;
-private int count;
+private double angle;
 
 
 
@@ -39,6 +39,8 @@ public Node(int x, int y, int radius, int counter, boolean toAdd) {
     highlighted = false;
     this.color = Color.RED;//default color of unselected node
     this.toAdd= toAdd;
+    angle=0;
+   
   
 }
 public boolean toAdd() {
@@ -50,6 +52,11 @@ public Point getCoord() {
 	
 	return coord;
 }
+public Point getCoordPlusRadius() {
+	Point coord = new Point(x+10,y+10);
+	
+	return coord;
+}
 public int getX() {
 	return x;
 }
@@ -58,6 +65,15 @@ public int setX(int x) {
 	
 	this.x = x;
 	return x;
+}
+public double convertAngle() {
+	return Math.toRadians(angle);
+}
+public double setAngle(double angle) {
+	
+	this.angle = angle ;
+	return this.angle;
+	
 }
 public int getY() {
 	return y;
@@ -85,6 +101,10 @@ public void drawNode(Graphics2D g2d) {
    
 }
 public void drawFixturePinned(Graphics2D g2df) {
+	AffineTransform old = g2df.getTransform();
+	//double rotation =-convertAngle();
+		//Rotate graphic so it is perpendicular to beam
+	g2df.rotate((angle),(x),(y));
 	
 	 
   
@@ -99,11 +119,15 @@ public void drawFixturePinned(Graphics2D g2df) {
     	
     	g2df.drawPolygon(new int[] {x, x+10, x+20}, new int[] {y+20, y+10, y+20}, 3);
     }
-   
+    g2df.setTransform(old);
 }
 
 public void drawFixtureSliding(Graphics2D g) {
-	
+	AffineTransform old = g.getTransform();
+	double rotation =convertAngle();
+	//Rotate graphic so it is perpendicular to beam
+	g.rotate((rotation),(x+10),(y+10));
+
 	g.fillPolygon(new int[] {x, x+10, x+20}, new int[] {y+20, y+10, y+20}, 3);
 	g.drawOval(x-1, y+20, 6, 6);
 	g.drawOval(x+15, y+20, 6, 6);
@@ -119,10 +143,14 @@ public void drawFixtureSliding(Graphics2D g) {
     	
     	g.drawPolygon(new int[] {x, x+10, x+20}, new int[] {y+20, y+10, y+20}, 3);
     }
+    g.setTransform(old);
 }
 
 public void drawFixtureFixed(Graphics2D g2df) {
-	
+	AffineTransform old = g2df.getTransform();
+	double rotation =convertAngle();
+	//Rotate graphic so it is perpendicular to beam
+	g2df.rotate((rotation),(x+10),(y+10));
     
 	g2df.drawLine(x, y+15, x+20, y+15);
 	g2df.drawLine(x, y+15, x+5, y+20);
@@ -139,7 +167,7 @@ public void drawFixtureFixed(Graphics2D g2df) {
     
     	//g2df.drawPolygon(new int[] {x, x+10, x+20}, new int[] {y+20, y+10, y+20}, 3);
     }
-   
+    g2df.setTransform(old);
 }
 
 public Rectangle2D getBounds() {
