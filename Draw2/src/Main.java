@@ -1,10 +1,9 @@
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
@@ -13,26 +12,23 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
+
 import javax.swing.SwingUtilities;
 
 @SuppressWarnings("serial")
-public class Main_v1 extends JFrame implements ComponentListener{
+public class Main extends JFrame implements ComponentListener{
 	
 	private Toolbar toolbar;
 	private DrawPanel drawPanel;
@@ -47,7 +43,7 @@ public class Main_v1 extends JFrame implements ComponentListener{
 	private FixtureType fixturetype;
 	private JFileChooser fileChooser;
 	private CalculateNodeNumber currentnodenumber;
-	private Refresh refresh;
+	//private Refresh refresh;
 	private File currentfile;
 	private MenuBar menubar;
 	//private ScrollableGridDisplay grid;
@@ -70,10 +66,11 @@ public class Main_v1 extends JFrame implements ComponentListener{
 	private boolean toAdd = true;
 	private int count3=0;
 	
-	int	count2 = 0;
-
+	int	memberNumber = 0;
+	int start2;
+	int end2;
 	
-	public Main_v1() {
+	public Main() {
 
 		toolbar = new Toolbar();
 		drawPanel = new DrawPanel();
@@ -127,14 +124,14 @@ public class Main_v1 extends JFrame implements ComponentListener{
 			}
 			if (result == "Open") { 
 				
-				if (fileChooser.showOpenDialog(Main_v1.this) == JFileChooser.APPROVE_OPTION) {
+				if (fileChooser.showOpenDialog(Main.this) == JFileChooser.APPROVE_OPTION) {
 					
 					try {
 						loadFromFile(fileChooser.getSelectedFile());
 						labelPanel.setLoadedLabelText(fileChooser.getSelectedFile().getName());
 						
 					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(Main_v1.this, "Could not Load", "Error", JOptionPane.ERROR_MESSAGE);;
+						JOptionPane.showMessageDialog(Main.this, "Could not Load", "Error", JOptionPane.ERROR_MESSAGE);;
 					}
 					
 				}
@@ -143,12 +140,12 @@ public class Main_v1 extends JFrame implements ComponentListener{
 			}
 			if (result == "Save") { 
 				
-				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
+				if (fileChooser.showSaveDialog(Main.this)== JFileChooser.APPROVE_OPTION) {
 				try {
 					saveToFile(getLoadedFile());
 					//System.out.println(fileChooser.getSelectedFile());
 				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
+					JOptionPane.showMessageDialog(Main.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
 				}
 			}
 			
@@ -157,17 +154,17 @@ public class Main_v1 extends JFrame implements ComponentListener{
 				
 			}
 			if (result == "SaveAs") { 
-				if (fileChooser.showSaveDialog(Main_v1.this)== JFileChooser.APPROVE_OPTION) {
+				if (fileChooser.showSaveDialog(Main.this)== JFileChooser.APPROVE_OPTION) {
 					try {
 						saveToFile(fileChooser.getSelectedFile());
 						//System.out.println(fileChooser.getSelectedFile());
 					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(Main_v1.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
+						JOptionPane.showMessageDialog(Main.this, "Could not Save", "Error", JOptionPane.ERROR_MESSAGE);;
 					}
 				}
 			}
 			if (result == "Exit") { 
-				int action = JOptionPane.showConfirmDialog(Main_v1.this, 
+				int action = JOptionPane.showConfirmDialog(Main.this, 
 						"Do you really want to close the application?",
 						"Confirm Exit", JOptionPane.OK_CANCEL_OPTION);
 				
@@ -230,6 +227,7 @@ public class Main_v1 extends JFrame implements ComponentListener{
 					drawPanel.deleteReactions();
 					drawPanel.deleteDisplacements();
 					
+					
 					int dof =drawPanel.getMemberDOF();
 					
 					CreateGlobalMatrix globalStiffness = new CreateGlobalMatrix(dof);//create dof by dof global matrix.
@@ -240,21 +238,27 @@ public class Main_v1 extends JFrame implements ComponentListener{
 						for (Node node : drawPanel.getFilteredNodes()) {
 //				
 							if (member.getMemberStart().equals(node.getCoordPlusRadius())) {
+								
+								System.out.println(node.getNodeNumber() +"," +"EndNode");
+								System.out.println(member.getNumber());
 //								System.out.println("True1");
-								System.out.println(-member.x2+","+member.x1);
+//								System.out.println(-member.x2+","+member.x1);
 //								
-								member.setStart(node.getNodeNumber());
+								//member.setStart(node.getNodeNumber());
+								 end2 = node.getNodeNumber();
 							}
 							if (member.getMemberEnd().equals(node.getCoordPlusRadius())) {
-								
-								System.out.println(member.y2+","+member.y1);
-								member.setEnd(node.getNodeNumber());
+							System.out.println(node.getNodeNumber() +"," +"StartNode");
+							System.out.println(member.getNumber());
+//								System.out.println(member.y2+","+member.y1);
+//								//member.setEnd(node.getNodeNumber());
+								start2 = node.getNodeNumber();
 							}
-							
+							if(drawPanel.isRefreshed()==false) {
+								member.calculateNodeDOFList2(start2,end2);
+							}
 						}
-						if(drawPanel.isRefreshed()==false) {
-							member.calculateNodeDOFList();
-						}
+						
 						
 						
 						globalStiffness.blowupLocalStiffness(member.getLocalStiffness(),member.getNodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
@@ -666,7 +670,7 @@ public class Main_v1 extends JFrame implements ComponentListener{
 				//drawPanel.deleteFixture();
 				currentnodenumber.setNodeNumber(1);
 				currentnodenumber.setOldNodeNumber(1);
-				count2=0;
+				memberNumber=0;
 				
 				drawPanel.repaint(); 
 		    	
@@ -754,7 +758,7 @@ public class Main_v1 extends JFrame implements ComponentListener{
 				 
 				  drawPanel.repaint();
 			}
-			int countz=0;
+			
 			public void mouseMoved(MouseEvent me) {
 				super.mouseMoved(me);
 			
@@ -844,8 +848,8 @@ public class Main_v1 extends JFrame implements ComponentListener{
 			int count = 0;
 			
 			
-			private int start;
-			private int end;
+			private int startNode;
+			private int endNode;
 			
 			//CalculateNodeNumber currentnodenumber = new CalculateNodeNumber(); //Keeps track of current nodenumber and how/if it will be modified.
 			
@@ -1027,11 +1031,11 @@ public class Main_v1 extends JFrame implements ComponentListener{
 					count++;
 					
 						if( count3 == 0) {
-							start=drawPanel.getNodeNum();
+							startNode=drawPanel.getNodeNum();
 						}
 						
 						if( count3 == 1) {
-							end =drawPanel.getNodeNum();
+							endNode =drawPanel.getNodeNum();
 						}
 						count3++;
 					
@@ -1050,15 +1054,19 @@ public class Main_v1 extends JFrame implements ComponentListener{
 						
 						if (count == 2) {
 						
-							drawPanel.addMember(new Member(x1, y1, x2, y2,count2, currentnodenumber.getNodeNumber(), drawPanel.getNodeNum(),start,end));
-							//System.out.println(drawPanel.getNodeNum());
+							drawPanel.addMember(new Member(x1, y1, x2, y2,memberNumber,startNode,endNode));
+							
 							drawPanel.setBeamdof(currentnodenumber.getNodeNumber());
 							drawPanel.sortMemberMidPointCoordinate();
 							drawPanel.sortNodeCoordinate();
+							//drawPanel.sortMemberNodeCoordinate();
+							
+							
+							
 							//materialCollection.addDefaultMaterial(new Material(E,A,I,Name));
 							count = 0;
 							count3 = 0;
-							count2++;
+							memberNumber++;
 							last=null;
 							
 						}
@@ -1120,7 +1128,7 @@ public class Main_v1 extends JFrame implements ComponentListener{
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				new Main_v1();
+				new Main();
 				
 			}
 		});

@@ -17,26 +17,26 @@ public class Member implements Serializable {
 
 	int x1,x2,y1,y2;		//Member start and end node location
 	
-	int start,end;			//Member start and end node number
+	int startNode,endNode;			//Member start and end node number
 	
 	int vs,hs,rs;			//vertical,horizontal and rotational start node index
 	int ve,he,re;			//vertical,horizontal and rotational end node index
 	
-	private int number;		//Member number
-	private int dof;
+	private int memberNumber;		//Member number
 	private int[] doflist;
-	
+	private Point memberStart;
+	private Point memberEnd;
 	private String forcetype="None";
 	
 	private double[] reactions= new double[6];
 	private double[] globalreactions= new double[6];
-	private double[] blownupglobalreactions= new double[dof];
+	private double[] blownupglobalreactions;
 	private Color color;
 	private Point forcelocation;
 	private boolean selected;
 	private boolean highlighted;
 	
-	private int nodenum;
+	//private int nodenum;
 	
 	private double Ra;
 	private double Rb;
@@ -50,73 +50,70 @@ public class Member implements Serializable {
 	
 	//private double L;
 	
-	Member(int x1, int y1, int x2, int y2, int number, int dof, int nodenum,int start,int end) {
+	Member(int x1, int y1, int x2, int y2, int memberNumber,int startNode,int endNode) {
 		
 	   this.x1 = x1;
 	   this.y1 = y1;
 	   this.x2 = x2;
 	   this.y2 = y2;
-	   this.number =number;
+	   this.memberNumber =memberNumber;
 	   this.color = Color.BLUE;
-	   this.nodenum=nodenum;
-	   this.start=start;
-	   this.end = end;
-	   this.dof = dof;
-	    
+	 //  this.nodenum=nodenum;
+	   this.startNode=startNode;
+	   this.endNode = endNode;
+	   
+	   calculateStartEnd();
 	}
 	 public void setStart(int start) {
-		 this.start=start;
+		 this.startNode=start;
 		 
 	 }
 	 public void setEnd(int end) {
-		 this.end=end;
+		 this.endNode=end;
 		 
 	 }
-	public int getNodeNumber() {
-		
-		return nodenum;
-	}
+
 	  public int setMemberNum(int membernum) {
 	    	
-	    	this.number=membernum;
+	    	this.memberNumber=membernum;
 	    	
-	    	return number;
+	    	return memberNumber;
 	    
 	    }
 	public int[] getNodesList(){
 		
 
-	int[]	nodelist = {start,end};
+	int[]	nodelist = {startNode,endNode};
 
 		return nodelist;
 		
 	}
 	
-	public int[] calculateNodeDOFList() {
-
-			vs=start*3-2;
-			hs=vs+1;
-			rs=hs+1;
-			
-
-			ve=end*3-2;
-			he=ve+1;
-			re=he+1;
-		
-		
-		int[]	dofnodelist = {vs,hs,rs,ve,he,re};
-		
-		
-		for(int j = 0; j<dofnodelist.length; j++) {
-			//System.out.print(dofnodelist[j]+ "," );
-			//System.out.println(dofnodelistend[j]);
-			}
-		//	System.out.println();
-			
-			doflist=dofnodelist;
-		return dofnodelist;
-		
-	}
+//	public int[] calculateNodeDOFList() {
+//
+//			vs=startNode*3-2;
+//			hs=vs+1;
+//			rs=hs+1;
+//			
+//
+//			ve=endNode*3-2;
+//			he=ve+1;
+//			re=he+1;
+//		
+//		
+//		int[]	dofnodelist = {vs,hs,rs,ve,he,re};
+//		
+//		
+//		for(int j = 0; j<dofnodelist.length; j++) {
+//			//System.out.print(dofnodelist[j]+ "," );
+//			//System.out.println(dofnodelistend[j]);
+//			}
+//		//	System.out.println();
+//			
+//			doflist=dofnodelist;
+//		return dofnodelist;
+//		
+//	}
 	
 	public int[] calculateNodeDOFList2(int start,int end) {
 
@@ -156,48 +153,64 @@ public class Member implements Serializable {
 		
 	}
 	
+	public void calculateStartEnd() {
+		if (x1>x2) {
+			//System.out.println("x<x");
+			 memberStart = new Point(x1,y1);
+			 memberEnd = new Point(x2,y2);
+		}
+		else if (x1<x2) {
+			//System.out.println("x>x");
+			memberStart = new Point(x2,y2);
+			memberEnd = new Point(x1,y1);
+		}
+		else {
+			//System.out.println("x=x");
+			if (y1>y2) {
+				memberStart= new Point(x1,y1);
+				memberEnd = new Point(x2,y2);
+				//System.out.println("y<y");
+				
+			}
+			else if (y1<y2) {
+				memberStart = new Point(x2,y2);
+				memberEnd = new Point(x1,y1);
+				//System.out.println("y>y");
+				
+			}
+			}
 	
+
+	}
 	public Point getMemberStart() {
-		Point memberstart = new Point(x1,y1);
 		
-		return memberstart;
+		
+		return memberStart;
 	}
 	public Point getMemberEnd() {
-		Point memberend = new Point(x2,y2);
 		
-		return memberend;
+		
+		return memberEnd;
 	}
-	public void setMemberStart(int x, int y) {
-		x1=x;
-		y1=y;
-		
-	}
-	public void setMemberEnd() {
-		Point memberend = new Point(x2,y2);
-		
-		
-	}
-	public int getDOF() {
-		dof = dof *3;
-		return dof;
-		}
+
+
 	
 	public double getDeltaX() {
-		double dx= (double)((-x2+x1)/10)/2;
-		//System.out.println(dx +"dx");
-		//System.out.println(x2);
+		//double dx= (double)((-x2+x1)/10)/2;
+		double dx= (double)((-memberEnd.x+memberStart.x)/10)/2;
+		
 		return dx;
 	}
 	public double getDeltaY() {
-		double dy= (double)((y2-y1)/10)/2;
-		//System.out.println(y2 + "," +y1);
-		//System.out.println(dy+"dy");
+		//double dy= (double)((y2-y1)/10)/2;
+		double dy= (double)((memberEnd.y-memberStart.y)/10)/2;
+		
 		return dy;
 	}
 	public double  getLength() {
 		
-		double xpow2 = Math.pow(getDeltaX(), 2);
-		double ypow2 = Math.pow(getDeltaY(), 2);
+		double xpow2 = getDeltaX()*getDeltaX();
+		double ypow2 = getDeltaY()*getDeltaY();
 		//Math.round(R[i] *100.0 )/ 100.0;
 		double l=	(Math.sqrt(xpow2+ypow2));
 	
@@ -209,15 +222,15 @@ public class Member implements Serializable {
 	
 	public double getCosTheta() {
 		double costheta = getDeltaX()/getLength();
-		System.out.println(costheta + "cos");
-		System.out.println(getDeltaX()+"dX");
+	//	System.out.println(costheta + "cos");
+	//	System.out.println(getDeltaX()+"dX");
 		return costheta;
 	}
 	
 	public double getSinTheta() {
 		double sintheta = getDeltaY()/getLength();
-		System.out.println(sintheta + "sin");
-		System.out.println(getDeltaY()+"dy");
+	//System.out.println(sintheta + "sin");
+	//	System.out.println(getDeltaY()+"dy");
 		return sintheta;
 	}
 	
@@ -314,7 +327,7 @@ public class Member implements Serializable {
 		double delta_angle=angle+oldangle;
 		delta_angle=Math.cos(delta_angle);
 		
-		System.out.println(delta_angle);
+		//System.out.println(delta_angle);
 		
 		return delta_angle;
 	}
@@ -324,7 +337,7 @@ public class Member implements Serializable {
 		oldangle=Math.asin(oldangle);
 		double delta_angle=angle+oldangle;
 		delta_angle=Math.sin(delta_angle);
-		System.out.println(delta_angle);
+		//System.out.println(delta_angle);
 		
 		
 		return delta_angle;
@@ -371,7 +384,7 @@ public class Member implements Serializable {
 			//System.out.println();
 			
 		}
-		System.out.println("Member" +  number);
+		//System.out.println("Member" +  number);
 		for(int i=0;i<6;i++) {
 			for(int j=0;j<6;j++) {
 				K[i][j]=0;
@@ -379,10 +392,10 @@ public class Member implements Serializable {
 					
 					K[i][j]+=(Kt[i][z]*b[z][j]);
 				}
-				System.out.print(K[i][j] +" ");
+				//System.out.print(K[i][j] +" ");
 				
 			}
-			System.out.println();
+		//	System.out.println();
 			
 		}
 		return K;
@@ -397,9 +410,9 @@ public void initialMemberReactions() {
 }
 public double[] getInitialMemberReactions() {
 	 for(int i=0;i<6;i++) {
-		 System.out.print(reactions[i]+" m ");
+		// System.out.print(reactions[i]+" m ");
 	 }
-	 System.out.println();
+	 //System.out.println();
 	return reactions;
 	
 }
@@ -415,9 +428,9 @@ public void setGlobalMemberReactions(double[] reactions) {
 
 public double[] getGlobalMemberReactions() {
 	 for(int i=0;i<6;i++) {
-		 System.out.print(globalreactions[i]+" mg ");
+		// System.out.print(globalreactions[i]+" mg ");
 	 }
-	 System.out.println();
+	// System.out.println();
 	return globalreactions;
 	
 }
@@ -426,10 +439,10 @@ public void setBlownuplMemberReactions(double[] reactions) {
 	
 }
 public double[] getBlownupGlobalMemberReactions() {
-	 for(int i=0;i<dof;i++) {
-		 System.out.print(blownupglobalreactions[i]+" mb ");
+	 for(int i=0;i<blownupglobalreactions.length;i++) {
+	//	 System.out.print(blownupglobalreactions[i]+" mb ");
 	 }
-	 System.out.println();
+	// System.out.println();
 	return blownupglobalreactions;
 	
 }
@@ -557,7 +570,7 @@ public double[] intialLocalForces() {
 	    	
 	    	g2d.rotate((getAngle()),getMidPoint().getX(),getMidPoint().getY());
 	    	//g2d.drawString(String.valueOf(getLength()), (int)getMidPoint().getX()-8,(int)getMidPoint().getY()-10);
-	    	g2d.drawString(number + "",   (int)getMidPoint().getX()-8,  + (int)getMidPoint().getY()-10);//draw the number of node
+	    	g2d.drawString(memberNumber + "",   (int)getMidPoint().getX()-8,  + (int)getMidPoint().getY()-10);//draw the number of node
 	    	
 	    	g2d.setTransform(old);
 	    	
@@ -668,7 +681,7 @@ boolean isSelected() {
 
 
 public int getNumber() {
-    return number;
+    return memberNumber;
 }
 
 public void setForceType(String forcetype) { 

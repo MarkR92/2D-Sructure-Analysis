@@ -2,7 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagLayout;
+
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -15,12 +15,11 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
+
 import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+
 
 
 public class DrawPanel extends JPanel {
@@ -37,6 +36,7 @@ public class DrawPanel extends JPanel {
 	public ArrayList<Node> nodesfilterd = new ArrayList<>();
 	public ArrayList<Point> nodeCoordinates = new ArrayList<>();
 	public ArrayList<Point> memberMidPointCoordinates = new ArrayList<>();
+	public ArrayList<Point> memberNodeCoordinates = new ArrayList<>();
 	public ArrayList<Member> members = new ArrayList<>();
 	public ArrayList<TempMember> tempmember = new ArrayList<>();
 	
@@ -54,7 +54,6 @@ public class DrawPanel extends JPanel {
 	public ArrayList<String> forcetype = new ArrayList<String>();
 	public ArrayList<DrawBending> drawbending = new ArrayList<>();
 	
-	private double[] R;
 	
 	private boolean hideForces=false;
 	//public ArrayList<Element> element = new ArrayList<>();
@@ -66,10 +65,10 @@ public class DrawPanel extends JPanel {
 	private int nodenum;
 	
 	private double scale=1;
-	private double scale2=1;
+	
 	private int tranx;
 	private int trany;
-	private boolean result;
+	
 	private boolean refresh;
 	
 	int w, h;
@@ -122,7 +121,7 @@ public class DrawPanel extends JPanel {
     	for(int i=0;i<nodesfilterd.size();i++) {
     		
     		nodesfilterd.get(i).setNodeNumber(i+1);
-    		System.out.println(nodesfilterd.get(i).getCoord()+"Point"+ nodesfilterd.get(i).getNodeNumber());
+    		//System.out.println(nodesfilterd.get(i).getCoord()+"Point"+ nodesfilterd.get(i).getNodeNumber());
     	}
  
     return nodeCoordinates;
@@ -255,6 +254,7 @@ public class DrawPanel extends JPanel {
         
       // member.getnodesList();
        addMemberMidPointCoordinate(member);
+       addMemberNodeCoordinate(member);
     
     }
  
@@ -269,24 +269,50 @@ public class DrawPanel extends JPanel {
  	memberMidPointCoordinates.add(m.getMidPoint());
   
  }
+ public void  addMemberNodeCoordinate(Member m) {
+
+	 	memberNodeCoordinates.add(m.getMemberStart());
+	 	memberNodeCoordinates.add(m.getMemberEnd());
+	 	System.out.println(m.getMemberEnd() +","+"Start");
+	 	System.out.println(m.getMemberStart() +","+"End");
+	
+	 }
  
 
 public ArrayList<Point>  sortMemberMidPointCoordinate() {
 
-	//members.sort(Comparator.comparing(Member::getX));
  	
  	Collections.sort(members , new MemberComparator());
-	//members.so
- 	//members.sort(<Point> members.get(i).getMidPoint());
+	
  	for(int i=0;i< members.size();i++) {
- 		//members.sort( members.get(i).getMidPoint());
+ 	
  		members.get(i).setMemberNum(i);
- 		System.out.println( members.get(i).getMidPoint()+"MidPoint"+members.get(i).getNumber()+" , "+members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
+ 	
+ 		//System.out.println( members.get(i).getMidPoint()+"MidPoint"+members.get(i).getNumber()+" , "+members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
  		//System.out.println(members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
  	}
  	System.out.println();
 
  return  memberMidPointCoordinates ;
+  
+ }
+public ArrayList<Point>  sortMemberNodeCoordinate() {
+
+ 	
+ 	Collections.sort(members , new MemberNodeComparator());
+	
+ 	for(int i=0;i< members.size();i++) {
+ 	
+ 		//members.get(i).setMemberNum(i);
+// 	System.out.println(members.get(i).getMemberEnd()+","+ "StartSorted");
+// 	System.out.println(members.get(i).getMemberStart()+","+ "EndSorted");
+ 	
+ 		//System.out.println( members.get(i).getMidPoint()+"MidPoint"+members.get(i).getNumber()+" , "+members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
+ 		//System.out.println(members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
+ 	}
+ 	System.out.println();
+
+ return  memberNodeCoordinates ;
   
  }
     
