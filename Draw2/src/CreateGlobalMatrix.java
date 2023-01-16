@@ -28,36 +28,6 @@ public class CreateGlobalMatrix {
 	}
 
 	
-	//public void blowupLocalk( double[][] localkPrime, int[] nodeNumber) {
-
-//		localK = new double[dof][dof]; 								//create zero matrix based on dof
-//		
-//		for ( int i=0; i< nodeNumber.length; i++) {	
-//			
-//			 index = nodeNumber[i];									//each node will have a row and col in the stiffness matrix 
-//		 System.out.println(index +"ind");
-//		}
-//		
-//		
-//	//System.out.println(index +"ind");
-//		 index=(index-2)*3;											//Index is used in three's
-//		 System.out.println(index +"ind2");
-//		for(int i=0+index;i<6+index;i++) {
-//			  
-//				for(int j=0+index;j<6+index;j++) {
-//					
-//					localK[i][j]+= localkPrime[i-index][j-index]; 	//add local matrix to zero matrix 
-//					//System.out.print(localK[i][j]+" ");
-//				}
-//				//System.out.println( );
-//				
-//		  }
-//		
-//		
-//		//localKlist.add(localK);	
-		
-	//}
-	
 	public void blowupLocalStiffness( double[][] localkPrime, int[] nodeNumber) {
 
 		localStiffness= new double[dof][dof]; 								//create zero matrix based on dof
