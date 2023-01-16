@@ -48,15 +48,11 @@ public Point getMidPoint() {
 
 public double calculateSlope() {
 	
-	if (current.x-last.x == 0) {
-
-		return 1;
-	}else {
-	
-	
-	return ((double)(current.y-last.y)/(double)(current.x-last.x));
-
+	if (current.x-last.x != 0) {
+		return ((double)(current.y-last.y)/(double)(current.x-last.x));
+			
 }
+	return Integer.MAX_VALUE;
 	}
 public double calculateYintercept() {
 	

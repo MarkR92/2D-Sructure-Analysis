@@ -118,7 +118,7 @@ public class Forces implements Serializable {
 	getLocation();
 	
 			rotation= -convertAngle();
-	System.out.println(angle+","+"force");
+	//System.out.println(angle+","+"force");
 	 		if (direction == "Up") {
 	 			
 	 			AffineTransform old = gp.getTransform();

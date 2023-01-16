@@ -19,17 +19,13 @@ public class Displacements {
 	}
 	
 	public double[] calculateDeflections(double[][] K, double[] F) {
-		
-		//System.out.println(reduceddof);
+	
 		U= new double [reduceddof];
-		//K = new double [3][3];
-		//F = new double [3];
-		
-		
+	
 		for (int row =0; row<reduceddof;row++) {
-			//U[row]=0;
+			
 			for(int col = 0; col<reduceddof; col++) {
-				//U[col]=0;
+				
 			U[row] += (K[row][col]*F[col])*1000*1000;
 			
 		//System.out.print(F[col] + "   h");
@@ -128,8 +124,9 @@ public class Displacements {
 		Ulocalprime=new double[6];
 		
 		int j = 0;
-		//System.out.println(beamnumber);
+	System.out.println(beamnumber+"beamnum");
 		for (int i=beamnumber*3;i<6+beamnumber*3; i++) {
+	//for (int i=beamnumber*3;i<6; i++) {
 		Ulocal[j]=Uglobal[i]; 
 		
 		//System.out.println(Ulocal[j]);

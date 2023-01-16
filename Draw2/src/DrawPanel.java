@@ -35,6 +35,11 @@ public class DrawPanel extends JPanel {
 	public ArrayList<Node> nodes = new ArrayList<>();
 	public ArrayList<Node> nodesfilterd = new ArrayList<>();
 	public ArrayList<Point> nodeCoordinates = new ArrayList<>();
+	public ArrayList<Point> sortedNodeCoordinates = new ArrayList<>();
+	private boolean nodesSorted=false;
+	public ArrayList<Integer> sortedNodeNumber = new ArrayList<>();
+	public ArrayList<int[]> sortedMemberNodes = new ArrayList<>();
+	
 	public ArrayList<Point> memberMidPointCoordinates = new ArrayList<>();
 	public ArrayList<Point> memberNodeCoordinates = new ArrayList<>();
 	public ArrayList<Member> members = new ArrayList<>();
@@ -48,9 +53,10 @@ public class DrawPanel extends JPanel {
 	public ArrayList<Forces> forces = new ArrayList<>();
 	
 	public ArrayList<DrawReactions> drawreactions = new ArrayList<>();
-	public ArrayList<DrawDisplacement> drawdisplacement = new ArrayList<>();
+	public ArrayList<DrawDisplacement3> drawdisplacement = new ArrayList<>();
 	public ArrayList<DrawShear> drawshear = new ArrayList<>();
 	public ArrayList<double[]> shearresults = new ArrayList<double[]>();
+	public ArrayList<double[]> displacementresults = new ArrayList<double[]>();
 	public ArrayList<String> forcetype = new ArrayList<String>();
 	public ArrayList<DrawBending> drawbending = new ArrayList<>();
 	
@@ -101,9 +107,6 @@ public class DrawPanel extends JPanel {
     		addNodeCoordinate(n);
     		
     	}
-    
-    		
-    
     	
     }
  
@@ -119,13 +122,40 @@ public class DrawPanel extends JPanel {
     	Collections.sort(nodesfilterd, new NodeComparator());
     	
     	for(int i=0;i<nodesfilterd.size();i++) {
-    		
+    		//System.out.println(nodesfilterd.size());
     		nodesfilterd.get(i).setNodeNumber(i+1);
+    		//sortedNodeCoordinates.add(nodesfilterd.get(i).getCoord());
     		//System.out.println(nodesfilterd.get(i).getCoord()+"Point"+ nodesfilterd.get(i).getNodeNumber());
+    		
     	}
  
     return nodeCoordinates;
      
+    }
+    public void sortNodeCoordinates(){
+    	for(int i=0;i<nodesfilterd.size();i++) {
+    	
+    	sortedNodeCoordinates.add(nodesfilterd.get(i).getCoord());
+    	
+    	}
+    	nodesSorted=true;
+    	
+    }
+    public boolean getNodesSortedResult() {
+    	return nodesSorted;
+    }
+    
+    public ArrayList<Point> getSortedNodeCoordinates(){
+    	return sortedNodeCoordinates;
+    	
+    }
+    public ArrayList<Integer> getSortedNodeNumber(){
+    	for(int i=0;i<nodesfilterd.size();i++) {
+    	
+    	sortedNodeNumber.add(nodesfilterd.get(i).getNodeNumber());
+    	
+    	}
+    	return sortedNodeNumber;
     }
 
     public void createSnapGrid(int x, int y) {
@@ -302,7 +332,8 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
  	Collections.sort(members , new MemberNodeComparator());
 	
  	for(int i=0;i< members.size();i++) {
- 	
+ 		System.out.println(members.get(i).getNumber()+" , "+members.get(i).getNodesList()[0]+", "+members.get(i).getNodesList()[1]);
+ 		
  		//members.get(i).setMemberNum(i);
 // 	System.out.println(members.get(i).getMemberEnd()+","+ "StartSorted");
 // 	System.out.println(members.get(i).getMemberStart()+","+ "EndSorted");
@@ -315,7 +346,15 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
  return  memberNodeCoordinates ;
   
  }
-    
+public ArrayList<int[]> getSortedMemberNodes(){
+	for(int i=0;i<members.size();i++) {
+		sortedMemberNodes.add(members.get(i).getNodesList2());
+	
+	
+	}
+	return sortedMemberNodes;
+}
+//    
     public void  addFixture() {
     
     	fixtures.add("Free");
@@ -334,7 +373,7 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
     	
     }
     
-    public void addDisplacement(DrawDisplacement drawDisplacement) {
+    public void addDisplacement(DrawDisplacement3 drawDisplacement) {
     	
     	drawdisplacement.add(drawDisplacement);
     	
@@ -363,6 +402,17 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
     	return shearresults;
     	
     }
+  public void addDisplacementResults(double[] displacemnetresults) {
+    	
+    	this.displacementresults.add(displacemnetresults);
+    	
+    }
+    
+    public ArrayList<double[]> getDisplacementResults() {
+    	
+    	return displacementresults;
+    	
+    }
     public ArrayList<String> getForceType() {
     	
     	return forcetype;
@@ -376,6 +426,11 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
     	n.setSelected(false);
     	
     	}
+    }
+public void changeFixture2(String fixture , Node n) {
+    	
+    	
+    	fixtures.set(n.getNodeNumber()-1, fixture);
     	
     }
     
@@ -458,6 +513,12 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
   }
   public void deleteBendingDiagram() {
 	  drawbending.clear();
+  }
+  public void deleteResultGraphics() {
+	    deleteReactions();
+		deleteDisplacements();
+		deleteShearDiagram();
+		deleteBendingDiagram();
   }
     public boolean containsNode(Node n) {
     	
@@ -572,6 +633,7 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
         Graphics2D g2d = (Graphics2D) grphcs;
+        
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
@@ -663,7 +725,7 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
             	for (DrawReactions drawreaction:drawreactions) {
             		drawreaction.drawReactions(g2d);
             	}
-            	for (DrawDisplacement drawdisplacement:drawdisplacement) {
+            	for (DrawDisplacement3 drawdisplacement:drawdisplacement) {
             		drawdisplacement.drawDisplacments(g2d);
             	}
             	for (DrawShear drawshear:drawshear) {

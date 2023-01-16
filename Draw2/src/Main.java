@@ -33,6 +33,7 @@ public class Main extends JFrame implements ComponentListener{
 	private Toolbar toolbar;
 	private DrawPanel drawPanel;
 	private LabelPanel labelPanel;
+	private ParseTextEntry parseText;
 	private FixturePopupPanel fixturepane;
 	private ForcePopupPanel forcepane;
 	private EditForcePopupPanel editforcepane;
@@ -69,6 +70,8 @@ public class Main extends JFrame implements ComponentListener{
 	int	memberNumber = 0;
 	int start2;
 	int end2;
+	private int startNode;
+	private int endNode;
 	
 	public Main() {
 
@@ -194,7 +197,78 @@ public class Main extends JFrame implements ComponentListener{
 		}
 		
 	});
+	labelPanel.setTextEntryListener(new TextEntryListener() {
 
+		@Override
+		public void stringEmitted(String result) {
+			parseText= new ParseTextEntry(result);
+			
+			
+			for(int i=0;i<parseText.getNodeCordinatesX().length;i++) {
+			
+				
+				drawPanel.addNode(new Node(parseText.getNodeCordinatesX()[i], parseText.getNodeCordinatesY()[i], 10, i+1,toAdd));
+				toAdd = true;
+				
+				drawPanel.setNodeNum(parseText.getNodeCordinatesX().length);
+			
+				
+					
+				if (drawPanel.getNodes().size() > 1) {
+					
+					
+					
+					int size = drawPanel.getNodes().size();
+
+					
+					int x1 = drawPanel.getNodes().get(size - 1).getX() + 10;
+					int y1 = drawPanel.getNodes().get(size - 1).getY() + 10;
+					int x2 = drawPanel.getNodes().get(size - 2).getX() + 10;
+					int y2 = drawPanel.getNodes().get(size - 2).getY() + 10;
+			
+						drawPanel.addMember(new Member(x1, y1, x2, y2,memberNumber,startNode,endNode));
+						
+						drawPanel.setBeamdof(parseText.getNodeCordinatesX().length);
+						memberNumber++;
+
+
+				}
+			}
+			for (Node node : drawPanel.getFilteredNodes()) {
+				
+					if (parseText.getFixtures()[node.getNodeNumber()-1].equals("X") ){
+						
+						drawPanel.changeFixture2("Fixed",node);
+						
+					}
+					if (parseText.getFixtures()[node.getNodeNumber()-1].equals("P") ) {
+						
+						drawPanel.changeFixture2("Pinned",node);
+						
+					}
+					if (parseText.getFixtures()[node.getNodeNumber()-1].equals("S") ) {
+						
+						drawPanel.changeFixture2("Sliding",node);
+						
+					}
+//					  if (forcepane.getForce() == "Point") {		//Point Force Selected
+//							//add to Arraylist 
+//							drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),forcepane.getDirection2(),n.getNodeNumber(),n.getMidPoint(), 0.0,forcepane.getAngle(), n.getCoord(),n.getCoord()));
+//							
+//							n.setSelected(false);
+//						
+//							drawPanel.repaint();
+//							
+//						}
+				
+				
+			}
+			
+
+			
+		}
+		
+	});
 		toolbar.setToolBarListener(new ToolBarListener() {	//Listen for a button on the toolbar to be pressed
 			@Override
 			
@@ -228,6 +302,7 @@ public class Main extends JFrame implements ComponentListener{
 					drawPanel.deleteDisplacements();
 					
 					
+					
 					int dof =drawPanel.getMemberDOF();
 					
 					CreateGlobalMatrix globalStiffness = new CreateGlobalMatrix(dof);//create dof by dof global matrix.
@@ -239,8 +314,8 @@ public class Main extends JFrame implements ComponentListener{
 //				
 							if (member.getMemberStart().equals(node.getCoordPlusRadius())) {
 								
-								System.out.println(node.getNodeNumber() +"," +"EndNode");
-								System.out.println(member.getNumber());
+//								System.out.println(node.getNodeNumber() +"," +"EndNode");
+//								System.out.println(member.getNumber());
 //								System.out.println("True1");
 //								System.out.println(-member.x2+","+member.x1);
 //								
@@ -248,19 +323,20 @@ public class Main extends JFrame implements ComponentListener{
 								 end2 = node.getNodeNumber();
 							}
 							if (member.getMemberEnd().equals(node.getCoordPlusRadius())) {
-							System.out.println(node.getNodeNumber() +"," +"StartNode");
-							System.out.println(member.getNumber());
+//							System.out.println(node.getNodeNumber() +"," +"StartNode");
+//							System.out.println(member.getNumber());
 //								System.out.println(member.y2+","+member.y1);
 //								//member.setEnd(node.getNodeNumber());
 								start2 = node.getNodeNumber();
 							}
 							if(drawPanel.isRefreshed()==false) {
 								member.calculateNodeDOFList2(start2,end2);
+								//System.out.println(member.getNumber()+","+start2+" , "+end2);
 							}
 						}
-						
-						
-						
+					//	System.out.println(member.getNodesList2());
+//						System.out.println("here");
+//						System.out.println(member.getNumber()+","+start2+" , "+end2);
 						globalStiffness.blowupLocalStiffness(member.getLocalStiffness(),member.getNodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
 					
 						//globalStiffness.addLocalStiffness();														 //add all globalk's together to create globalK
@@ -338,7 +414,7 @@ public class Main extends JFrame implements ComponentListener{
 							}else {
 								
 								//reactions.setLocalMemberForces(reactions);
-							System.out.println("here force");
+						///	System.out.println("here force");
 								double [][]adj = new double[6][6]; // To store adjoint of A[][] 
 								double [][]inv = new double[6][6]; // To store inverse of A[][] 
 								
@@ -348,7 +424,7 @@ public class Main extends JFrame implements ComponentListener{
 								invmatrix.adjoint(member.getBeta(), adj); 
 								if (invmatrix.inverse(member.getBeta(), inv)) {// check for singularity
 							    	
-									System.out.println(member.getNumber());
+									//System.out.println(member.getNumber());
 							    	reactions.globalMemberForceVector( inv,member.getInitialMemberReactions(),member.getNumber());
 							    	reactions.blowupLocalMemberForceVector(member.getGlobalMemberReactions(), member.getNodeDOFList());
 							    	member.setBlownuplMemberReactions(reactions.getBlownupLocalMemberForceVector());
@@ -416,7 +492,7 @@ public class Main extends JFrame implements ComponentListener{
 					     d.blowupDisplacementVector(drawPanel.getFixtureType());
 					   
 					     U = d.getDisplacmentVector();
-				
+					     drawPanel.addDisplacementResults(d.getDisplacmentVector());
 					    
 					    R = reactions.calculateGlobalReaction(globalStiffness.getGlobalStiffness (), d.getDisplacmentVector());
 					    
@@ -441,16 +517,13 @@ public class Main extends JFrame implements ComponentListener{
 					drawPanel.setHideForces(false);
 					
 					if ( resultpane.getResultType() == "Reactions") {
-					
-						drawPanel.deleteReactions();
-						drawPanel.deleteDisplacements();
-						drawPanel.deleteShearDiagram();
-						drawPanel.deleteBendingDiagram();
+
+						drawPanel.deleteResultGraphics();
 						
-						int nodecount = 0;
+						//int nodecount = 0;
 						for(Node n:drawPanel.getFilteredNodes()) {
-							drawPanel.addReaction( new DrawReactions(R,nodecount,n.getX(),n.getY(), drawPanel.getFilteredNodes().size()));
-							nodecount++;
+							drawPanel.addReaction( new DrawReactions(R,n.getNodeNumber()-1,n.getX(),n.getY()));
+							//nodecount++;
 							
 					}
 						
@@ -458,41 +531,34 @@ public class Main extends JFrame implements ComponentListener{
 					}
 					if ( resultpane.getResultType() == "Displacements") {
 						
-						drawPanel.deleteReactions();
-						drawPanel.deleteDisplacements();
-						drawPanel.deleteShearDiagram();
-						drawPanel.deleteBendingDiagram();
+						drawPanel.deleteResultGraphics();
+						drawPanel.setHideForces(true);
 						
-						for (Member member:drawPanel.getMembers()) {
-							
-							drawPanel.addDisplacement(new DrawDisplacement(U, member.getMemberStart(),member.getMemberEnd(),member.getNodesList(),member.getNodeDOFList()));
-							
+						if (!drawPanel.getNodesSortedResult()) {
+							drawPanel.sortNodeCoordinates();
 						}
-					
+							
+							drawPanel.addDisplacement( new DrawDisplacement3(U,drawPanel.getSortedNodeCoordinates(),drawPanel.getSortedMemberNodes()));
+				
 					}
 					
 					if ( resultpane.getResultType() == "Shear Diagram") {
+						
 						drawPanel.setHideForces(true);
-						drawPanel.deleteReactions();
-						drawPanel.deleteDisplacements();
-						drawPanel.deleteShearDiagram();
-						drawPanel.deleteBendingDiagram();
+						drawPanel.deleteResultGraphics();
 						
 						
 						for (Member member:drawPanel.getMembers()) {
 						
-							drawPanel.addShear(new DrawShear(drawPanel.getShearResults().get(member.getNumber()),drawPanel.getForceType().get(member.getNumber()), member.getMemberStart(),member.getMemberEnd(),member.getNumber(),member.getAngle(),member.getMidPoint(), member.getSlope(),member.getLength(),member.getForceLocation()));
+							drawPanel.addShear(new DrawShear(drawPanel.getShearResults().get(member.getNumber()),drawPanel.getForceType().get(member.getNumber()),member.getAngle(),member.getMidPoint(),member.getLength(),member.getForceLocation(),member.getSlope()));
 							
 						}
 						
 						
 					}
 					if ( resultpane.getResultType() == "Bending Diagram") {
-						drawPanel.deleteReactions();
-						drawPanel.deleteDisplacements();
-						drawPanel.deleteShearDiagram();
-						drawPanel.deleteBendingDiagram();
-						
+						drawPanel.deleteResultGraphics();
+						drawPanel.setHideForces(true);
 						for (Member member:drawPanel.getMembers()) {
 							//System.out.println(drawPanel.getForceType().get(member.getNumber()));
 							drawPanel.addBending(new DrawBending(drawPanel.getShearResults().get(member.getNumber()),member.getMidPoint(),member.getAngle(),member.getLength(),drawPanel.getForceType().get(member.getNumber())));
@@ -848,8 +914,7 @@ public class Main extends JFrame implements ComponentListener{
 			int count = 0;
 			
 			
-			private int startNode;
-			private int endNode;
+			
 			
 			//CalculateNodeNumber currentnodenumber = new CalculateNodeNumber(); //Keeps track of current nodenumber and how/if it will be modified.
 			
@@ -1055,7 +1120,7 @@ public class Main extends JFrame implements ComponentListener{
 						if (count == 2) {
 						
 							drawPanel.addMember(new Member(x1, y1, x2, y2,memberNumber,startNode,endNode));
-							
+					//		System.out.println(currentnodenumber.getNodeNumber());
 							drawPanel.setBeamdof(currentnodenumber.getNodeNumber());
 							drawPanel.sortMemberMidPointCoordinate();
 							drawPanel.sortNodeCoordinate();

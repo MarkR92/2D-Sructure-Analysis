@@ -18,6 +18,8 @@ public class Member implements Serializable {
 	int x1,x2,y1,y2;		//Member start and end node location
 	
 	int startNode,endNode;			//Member start and end node number
+	int startNode2,endNode2;			//Member start and end node number
+	
 	
 	int vs,hs,rs;			//vertical,horizontal and rotational start node index
 	int ve,he,re;			//vertical,horizontal and rotational end node index
@@ -84,10 +86,18 @@ public class Member implements Serializable {
 		
 
 	int[]	nodelist = {startNode,endNode};
-
+//System.out.println(startNode +","+endNode);
 		return nodelist;
 		
 	}
+	public int[] getNodesList2(){
+		
+
+		int[]	nodelist2 = {startNode2,endNode2};
+	//System.out.println(startNode2 +","+endNode2);
+			return nodelist2;
+			
+		}
 	
 //	public int[] calculateNodeDOFList() {
 //
@@ -116,7 +126,10 @@ public class Member implements Serializable {
 //	}
 	
 	public int[] calculateNodeDOFList2(int start,int end) {
-
+		//System.out.println("here");
+		startNode2=start;
+		endNode2=end;
+	//	System.out.println(memberNumber+","+start+","+end);
 		vs=start*3-2;
 		hs=vs+1;
 		rs=hs+1;
@@ -140,6 +153,7 @@ public class Member implements Serializable {
 	return dofnodelist;
 	
 }
+	
 	
 	public int[] getNodeDOFList(){
 		System.out.println("Node dof List");
@@ -469,24 +483,30 @@ public double[] getBlownupGlobalMemberReactions() {
 	
 	public double getSlope() {
 		
-		double dx1 = x1;
-		double dx2 = x2;
-		double dy1 = y1;
-		double dy2 = y2;
 		
-		if (dx2-dx1 == 0) {
-			
-			double s = 1;
-			return s;
-			
-		}else {
-		double s = (dy2-dy1)/(dx2-dx1);
-		//calculateYintercept();
-		return s;
-		
-		}	
-		
+		double dx1 = memberStart.x;
+		double dx2 = memberEnd.x;
+		double dy1 = memberStart.y;
+		double dy2 = memberEnd.y;
+		if (dx2-dx1 != 0) {
+			return ((double)(dy2-dy1)/(double)(dx2-dx1));
+				
 	}
+		return Integer.MAX_VALUE;
+		}
+//		if (dx2-dx1 == 0) {
+//			
+//			double s = 1;
+//			return s;
+//			
+//		}else {
+//		double s = (dy2-dy1)/(dx2-dx1);
+//		//calculateYintercept();
+//		return s;
+//		
+//		}	
+		
+	
 	public void calculateYintercept() {
 		//y = mx +c
 		//c=y-mx
@@ -496,10 +516,10 @@ public double[] getBlownupGlobalMemberReactions() {
 	}
 	
 public double getAngle() {
-	double dy1 = y1;
-	double dy2 = y2;
-	double dx1 = x1;
-	double dx2 = x2;
+	double dy1 = memberStart.y;
+	double dy2 = memberEnd.y;
+	double dx1 = memberStart.x;
+	double dx2 = memberEnd.x;
 	
 	double o = (dy1-dy2);
 	double a = (dx1-dx2);

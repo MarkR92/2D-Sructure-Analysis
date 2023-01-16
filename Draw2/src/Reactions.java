@@ -181,7 +181,7 @@ public class Reactions  {
 
 	for(int i=0;i< dof;i++) {
 		
-		System.out.print(globalNodalForces[i] + "n ");
+		//System.out.print(globalNodalForces[i] + "n ");
 	}
 	System.out.println();	
 //	
@@ -405,12 +405,12 @@ public void calculateLocalReactions(double[][] Klocal, double[] Ulocal, int numb
 		Rlocal[row] += (Klocal[row][col]*Ulocal[col])/1000/1000;
 		//System.out.print(Rlocal[row] + " lo ");
 		}
-		System.out.println(Ulocal[row] + " lo ");
+		//System.out.println(Ulocal[row] + " lo ");
 
 		
 		
 	}
-	System.out.println(" ");	
+	//System.out.println(" ");	
 	//System.out.println(memberForces.size());
 	//for (int i =0; i<memberForces.size();i++) {
 		
@@ -419,13 +419,13 @@ public void calculateLocalReactions(double[][] Klocal, double[] Ulocal, int numb
 		Rlocal[row]=Rlocal[row]+memberForces.get(number)[row];
 		
 		//System.out.println(memberForces.get(number)[row]+"r");
-		System.out.println(Rlocal[row]+" Rlocal");
+		//System.out.println(Rlocal[row]+" Rlocal");
 	//}
 	//System.out.println( );
 	
 
 	}
-	System.out.println( );
+	//System.out.println( );
 }
 public double[] getLocalReactions() {
 	
@@ -446,7 +446,7 @@ public double[] calculateGlobalReaction(double[][] K, double [] U  ) {
 		
 		}
 		
-		System.out.println();
+		//System.out.println();
 		//System.out.print(R[row] + "  ");
 }
 	//System.out.println("Force Vector");
