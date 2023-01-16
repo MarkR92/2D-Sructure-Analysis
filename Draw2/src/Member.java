@@ -6,6 +6,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.io.Serializable;
+import Jama.Matrix;
 
 
 public class Member implements Serializable {
@@ -66,6 +67,19 @@ public class Member implements Serializable {
 	   
 	   calculateStartEnd();
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	 public void setStart(int start) {
 		 this.startNode=start;
 		 
@@ -278,14 +292,11 @@ public class Member implements Serializable {
 		this.materialname=materialname;
 	}
 	
-	public double[][] getLocalKPrime() {
+	public Matrix getLocalKPrime() {
 		
 		double L = getLength();
-		double lpow3 = Math.pow(L, 3);
-		double lpow2 = Math.pow(L, 2);
-		
-		//double I = getI();
-		
+		double lpow3 = L*L*L;
+		double lpow2 =L*L;
 		
 		double k[][] = {
 				{ (A*E)/L,				 0,				0,	-(A*E)/L,				  0,				0},
@@ -296,14 +307,15 @@ public class Member implements Serializable {
 				{		0,	 (6*E*I)/lpow2,		(2*E*I)/L,		   0,    -(6*E*I)/lpow2,	    (4*E*I)/L}	
 		};
 		
-		return k;
+		Matrix K=new Matrix(k);
+		
+		return K;
 	}
 	
-	public double[][] getBeta(){
+	public Matrix getBeta(){
 		double c = getCosTheta();
 		double s = getSinTheta();
-		//System.out.println(c);
-		//System.out.println(s);
+		
 		double b[][] = {
 				{ c,	s,	0,	0,	0,	0},
 				{-s,	c,	0,  0,	0,	0},
@@ -313,8 +325,8 @@ public class Member implements Serializable {
 				{ 0,	0,	0,	0,	0,	1}	
 		};
 		
-			
-		return b;
+		Matrix B = new Matrix(b); 
+		return B;
 	}
 	public double[][] setBeta(double angle){
 		double c = getCosTheta();
@@ -334,15 +346,41 @@ public class Member implements Serializable {
 		};
 		return b;
 	}
+	
+	public Matrix getBetaT(){
+			
+			double bt[][] = new double[6][6];
+			Matrix betaT = new Matrix(bt);
+			
+
+			betaT=getBeta().transpose();
+			
+			return betaT;
+		}
+		
+		public Matrix getLocalStiffness() {
+
+			Matrix k = getLocalKPrime();
+			Matrix b = getBeta();
+			Matrix bt = getBetaT();
+			
+			double[][]kt = new double[6][6];
+			Matrix KT = new Matrix(kt);
+			double[][]ks = new double[6][6];
+			Matrix KS = new Matrix(ks);
+			
+			KT=bt.times(k);
+			KS=KT.times(b);
+			
+			return KS;
+		}
 	public double calculateDeltaAngleCos(double angle,double oldangle) {
 		
 		angle=Math.toRadians(Math.abs(angle));
 		oldangle=Math.acos(oldangle);
 		double delta_angle=angle+oldangle;
 		delta_angle=Math.cos(delta_angle);
-		
-		//System.out.println(delta_angle);
-		
+
 		return delta_angle;
 	}
 	public double calculateDeltaAngleSin(double angle,double oldangle) {
@@ -356,64 +394,7 @@ public class Member implements Serializable {
 		
 		return delta_angle;
 	}
-	public double[][] getBetaT(){
-		
-		double[][] b = getBeta();
-		
-		double bt[][] = new double[6][6];
-		
-		for(int i=0;i<6;i++) {
-			for(int j=0;j<6;j++) {
-				
-				bt[i][j]= b [j][i];
-			
-			}
-			
-		}
-		
-		return bt;
-	}
 	
-	public double[][] getLocalStiffness() {
-
-		double[][] k = getLocalKPrime();
-		double[][] b = getBeta();
-		double[][] bt = getBetaT();
-		
-		double[][]Kt = new double[6][6];
-		double[][]K = new double[6][6];
-		
-		for(int i=0;i<6;i++) {
-			for(int j=0;j<6;j++) {
-				
-				Kt[i][j]=0;
-				
-				for(int z=0;z<6;z++) {
-					
-					Kt[i][j]+=((bt[i][z]*k[z][j]));
-				}
-				//System.out.print(Kt[i][j] +" ");
-				
-			}
-			//System.out.println();
-			
-		}
-		//System.out.println("Member" +  number);
-		for(int i=0;i<6;i++) {
-			for(int j=0;j<6;j++) {
-				K[i][j]=0;
-				for(int z=0;z<6;z++) {
-					
-					K[i][j]+=(Kt[i][z]*b[z][j]);
-				}
-				//System.out.print(K[i][j] +" ");
-				
-			}
-		//	System.out.println();
-			
-		}
-		return K;
-	}
 	
 public void initialMemberReactions() {
  

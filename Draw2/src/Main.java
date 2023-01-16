@@ -334,15 +334,14 @@ public class Main extends JFrame implements ComponentListener{
 								//System.out.println(member.getNumber()+","+start2+" , "+end2);
 							}
 						}
-					//	System.out.println(member.getNodesList2());
-//						System.out.println("here");
-//						System.out.println(member.getNumber()+","+start2+" , "+end2);
-						globalStiffness.blowupLocalStiffness(member.getLocalStiffness(),member.getNodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
-					
+					//
+						globalStiffness.blowupLocalStiffness(member.getLocalStiffness().getArray(),member.getNodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
+						
 						//globalStiffness.addLocalStiffness();														 //add all globalk's together to create globalK
 					
 					}
-
+					System.out.println("Done: blowupLocalStiffness Matrix");
+					
 					globalStiffness.reduceglobalStiffness(drawPanel.getFixtureType());															//reduce globalK depending on fixtures
 					
 					Reactions reactions = new Reactions(drawPanel.getMemberDOF(), globalStiffness.getReducedDOF());
@@ -374,9 +373,9 @@ public class Main extends JFrame implements ComponentListener{
 							double [][]adj = new double[6][6]; // To store adjoint of A[][] 
 							double [][]inv = new double[6][6]; // To store inverse of A[][] 
 							
-					    	invmatrix.adjoint(member.getBeta(), adj); 
+					    	invmatrix.adjoint(member.getBeta().getArray(), adj); 
 						 
-						    if (invmatrix.inverse(member.getBeta(), inv)) {// check for singularity
+						    if (invmatrix.inverse(member.getBeta().getArray(), inv)) {// check for singularity
 						    	
 						    	System.out.println(member.getNumber());
 						    	reactions.globalMemberForceVector( inv,member.getInitialMemberReactions(),member.getNumber());
@@ -398,9 +397,9 @@ public class Main extends JFrame implements ComponentListener{
 							double [][]adj = new double[6][6]; // To store adjoint of A[][]   
 						    double [][]inv = new double[6][6]; // To store inverse of A[][] 
 						    
-						    invmatrix.adjoint(member.getBeta(), adj); 
+						    invmatrix.adjoint(member.getBeta().getArray(), adj); 
 							
-							  if (invmatrix.inverse(member.getBeta(), inv)) 
+							  if (invmatrix.inverse(member.getBeta().getArray(), inv)) 
 								  
 								  System.out.println(member.getNumber());
 								  
@@ -421,8 +420,8 @@ public class Main extends JFrame implements ComponentListener{
 								//reactions.localMemberForceVector();
 								//reactions.setLocalMemberForces(member.getInitialMemberReactions());
 								
-								invmatrix.adjoint(member.getBeta(), adj); 
-								if (invmatrix.inverse(member.getBeta(), inv)) {// check for singularity
+								invmatrix.adjoint(member.getBeta().getArray(), adj); 
+								if (invmatrix.inverse(member.getBeta().getArray(), inv)) {// check for singularity
 							    	
 									//System.out.println(member.getNumber());
 							    	reactions.globalMemberForceVector( inv,member.getInitialMemberReactions(),member.getNumber());
@@ -502,7 +501,7 @@ public class Main extends JFrame implements ComponentListener{
 					
 					    for (Member member : drawPanel.getMembers()) {
 					    	//System.out.println(member.getNumber());
-					    	reactions.calculateLocalReactions(member.getLocalKPrime(), d.localDeflections(member.getNumber(),member.getBeta()),member.getNumber());
+					    	reactions.calculateLocalReactions(member.getLocalKPrime().getArray(), d.localDeflections(member.getNumber(),member.getBeta().getArray()),member.getNumber());
 					   
 					    	drawPanel.addShearResults(reactions.getLocalReactions(),member.getForceType());
 					    }

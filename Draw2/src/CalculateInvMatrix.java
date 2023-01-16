@@ -1,7 +1,13 @@
 // Java program to find adjoint and inverse of a matrix 
+import Jama.*;
+
+
 public class CalculateInvMatrix{ 
       
 	private int N=6; 
+	private Matrix A;
+	private Matrix B;
+	
 
   public void setN(int N) {
 	  this.N=N;
