@@ -5,7 +5,7 @@ import Jama.*;
 public class CalculateInvMatrix{ 
       
 	private int N=6; 
-	private Matrix A;
+	private Matrix inverse;
 	private Matrix B;
 	
 
@@ -13,6 +13,15 @@ public class CalculateInvMatrix{
 	  this.N=N;
 	  
   }
+  public  Matrix calculateInvers(Matrix localForces, Matrix member)
+  {
+	  
+	 inverse= member.inverse().times(localForces);
+	 
+	 return inverse;
+  }
+  
+  
 // Function to get cofactor of A[p][q] in temp[][]. n is current 
 // dimension of A[][] 
 static void getCofactor(double A[][], double temp[][], int p, int q, int n){

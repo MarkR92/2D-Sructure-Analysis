@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import Jama.Matrix;
 
 
 
@@ -12,25 +13,27 @@ public class CreateGlobalMatrix {
 	private int indexJ;
 	private int iadjust;
 	private int jadjust;
-	private double[][] globalStiffness ; //global stiffness  matrix
-	private double [][] localStiffness; //local stiffness matrix "blown up" with zeros
-	private double [][]TempGlobalStiffness ;
+	private Matrix globalStiffness ; //global stiffness  matrix
+	private Matrix localStiffness; //local stiffness matrix "blown up" with zeros
+
 	
 	private ArrayList<double[][]> localKlist = new ArrayList<double[][]>() ;
 	
-	double[][] reducedGlobalStiffness ;
+	//double[][] reducedGlobalStiffness ;
+	Matrix reducedGlobalStiffness;
+	Matrix reducedGlobalStiffnessInverse;
 	
 	public CreateGlobalMatrix(int dof) {
 		
 	    this.dof = dof;
-	    TempGlobalStiffness=new double[dof][dof];
+	    globalStiffness= new Matrix(new double[dof][dof]);
 	   
 	}
 
 	
-	public void blowupLocalStiffness( double[][] localkPrime, int[] nodeNumber) {
+	public void blowupLocalStiffness( Matrix localkPrime, int[] nodeNumber) {
 
-		localStiffness= new double[dof][dof]; 								//create zero matrix based on dof
+		localStiffness= new Matrix(new double[dof][dof]); 								//create zero matrix based on dof
 		//System.out.println("Local Prime");
 		for(int i=0;i<6;i++) {
 			
@@ -39,67 +42,16 @@ public class CreateGlobalMatrix {
 			for(int j=0;j<6;j++) {
 				
 				indexJ = nodeNumber[j]-1;
-				
-				// System.out.println(indexI +"i");
-				// System.out.println(indexI +"j");
-				localStiffness[indexI][indexJ]+= localkPrime[i][j];
-				//System.out.println(localkPrime[i][j]);
+			
+				localStiffness.getArray()[indexI][indexJ]+= localkPrime.getArray()[i][j];
 			}
 			
 		}
-		 
-		 for(int i=0;i<dof;i++) {
-				
-				for(int j=0;j<dof;j++) {
-					
-				//	System.out.print(localStiffness[i][j]+" ");
-				}
-				//System.out.println( );
-		 }
-		 addLocalStiffness();
+
+
+		 globalStiffness.plusEquals(localStiffness);
 	
 	}
-	
-	
-
-	
-	public void addLocalStiffness() {
-		
-		
-		
-			 for(int i=0;i<dof;i++) {
-					
-					for(int j=0;j<dof;j++) {
-						
-						TempGlobalStiffness[i][j] += localStiffness[i][j];		
-						
-						}
-			
-			 }
-		
-			 globalStiffness=TempGlobalStiffness;
-			 
-			 System.out.println("Global Start");
-			 for(int i=0;i<dof;i++) {
-					
-					for(int j=0;j<dof;j++) {
-
-						System.out.print(globalStiffness[i][j]+" ");
-						
-						}
-						System.out.println();
-						
-			 }
-			 System.out.println("Global End");
-			 
-	
-		
-		
-	}
-	
-	
-
-
 	
 	public void reduceglobalStiffness(ArrayList<String> fixtureList) {
 
@@ -108,7 +60,7 @@ public class CreateGlobalMatrix {
 				
 				for(int j=0;j<dof;j++) {
 					
-					K[i][j] += globalStiffness[i][j];		
+					K[i][j] += globalStiffness.getArray()[i][j];		
 					
 					
 					}
@@ -140,9 +92,9 @@ public class CreateGlobalMatrix {
 			for(int j=0;j<dof;j++) {
 				
 				K[i][j]=Double.NaN;
-				System.out.print(K[i][j] + "  ");
+				//System.out.print(K[i][j] + "  ");
 			}
-			System.out.println();
+			//System.out.println();
 			}
 		
 		}
@@ -167,11 +119,11 @@ public class CreateGlobalMatrix {
 			for(int j=0;j<dof;j++) {
 				
 				K[i][j]=Double.NaN;
-				System.out.print(K[i][j] + "  ");
+				//System.out.print(K[i][j] + "  ");
 			}
 			//
 			
-			System.out.println();
+			//System.out.println();
 			}
 		
 		
@@ -195,26 +147,25 @@ public class CreateGlobalMatrix {
 				for(int j=0;j<dof;j++) {
 					
 					K[i][j]=Double.NaN;
-					System.out.print(K[i][j] + "  ");
+					//System.out.print(K[i][j] + "  ");
 				}
-				System.out.println();
+				//System.out.println();
 				}
 		}
 		
 		}
 
 		
-		reducedGlobalStiffness = new double[reduceddof][reduceddof];
-		//System.out.println(dof);
-		//System.out.println(reduceddof);
+		reducedGlobalStiffness = new Matrix(new double[reduceddof][reduceddof]);
+		
 		
 		for(int i=0;i<dof;i++) {
 			for(int j=0;j<dof;j++) {
 				//System.out.println(countj);
 					if (Double.isNaN(K[i][j])!=true) {
 						//System.out.println(count);
-						
-						reducedGlobalStiffness[iadjust][jadjust] += K[i][j];
+					
+						reducedGlobalStiffness.getArray()[iadjust][jadjust] += K[i][j];
 //					
 					jadjust++;
 					if(jadjust==reduceddof) {
@@ -226,17 +177,19 @@ public class CreateGlobalMatrix {
 					}
 				
 			}
-		//counti=0;
-		for(int i=0;i<reduceddof;i++) {
-			for(int j=0;j<reduceddof;j++) {
-				System.out.print(reducedGlobalStiffness[i][j] + "  ");
-				
-			}
-		System.out.println();
-		
-			}
+		System.out.println("*********Reduced Global Stiffness*********");
+		reducedGlobalStiffness.print(reduceddof,1);
+//		//counti=0;
+//		for(int i=0;i<reduceddof;i++) {
+//			for(int j=0;j<reduceddof;j++) {
+//				System.out.print(reducedGlobalStiffness.getArray()[i][j] + "  ");
+//				
+//			}
+//		System.out.println();
+//		
+//			}
 	
-		//System.out.println(reduceddof + "new");
+		System.out.println("********************");
 			}
 	
 	public double[][] getGlobalStiffness(){
@@ -248,16 +201,20 @@ public class CreateGlobalMatrix {
 			for(int j=0;j<dof;j++) {
 								
 				
-				System.out.print(globalStiffness[i][j] + "g  ");
+				System.out.print(globalStiffness.getArray()[i][j] + "g  ");
 	}
 				System.out.println();
 		}
 		
-		return globalStiffness;
+		return globalStiffness.getArray();
 	}
 	public double[][] getreducedGlobalStiffness(){
 		
-		return reducedGlobalStiffness;
+		return reducedGlobalStiffness.getArray();
+	}
+public Matrix getreducedGlobalStiffnessInverse(){
+	reducedGlobalStiffnessInverse=reducedGlobalStiffness.inverse();
+		return reducedGlobalStiffnessInverse;
 	}
 	
 	public int getReducedDOF() {

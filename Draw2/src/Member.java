@@ -31,8 +31,8 @@ public class Member implements Serializable {
 	private Point memberEnd;
 	private String forcetype="None";
 	
-	private double[] reactions= new double[6];
-	private double[] globalreactions= new double[6];
+	private Matrix reactions= new Matrix(new double[6][1]);
+	private Matrix globalreactions= new Matrix(new double[6][1]);
 	private double[] blownupglobalreactions;
 	private Color color;
 	private Point forcelocation;
@@ -396,36 +396,31 @@ public class Member implements Serializable {
 	}
 	
 	
-public void initialMemberReactions() {
- 
-	 for(int i=0;i<6;i++) {
-		 reactions[i]=0;
-	 }
-	;
-}
-public double[] getInitialMemberReactions() {
-	 for(int i=0;i<6;i++) {
-		// System.out.print(reactions[i]+" m ");
-	 }
-	 //System.out.println();
+public Matrix getInitialMemberReactions() {
+
 	return reactions;
 	
 }
 public void setMemberReactions(double[] reactions) {
-	this.reactions=reactions;
+	this.reactions=new Matrix (reactions,1);
+	
+}
+public Matrix calculateGlobalMemberReactions()
+{
+	globalreactions= new Matrix(new double[6][1]);
+	
+	globalreactions=getBeta().inverse().times(getInitialMemberReactions().transpose());
+	return globalreactions;
 	
 }
 
-public void setGlobalMemberReactions(double[] reactions) {
-	this.globalreactions=reactions;
-	
-}
+//public void setGlobalMemberReactions(double[] reactions) {
+//	this.globalreactions=reactions;
+//	
+//}
 
-public double[] getGlobalMemberReactions() {
-	 for(int i=0;i<6;i++) {
-		// System.out.print(globalreactions[i]+" mg ");
-	 }
-	// System.out.println();
+public Matrix getGlobalMemberReactions() {
+	//calculateGlobalMemberReactions();
 	return globalreactions;
 	
 }
@@ -695,14 +690,14 @@ public String getForceType() {
 	
 }
 public void setReactions(double[] reactions) {
-	this.reactions=reactions;
+	this.reactions= new Matrix(reactions,1);
 	
 	for(int i=0; i<6; i++) {
 		//System.out.println(reactions[i]+"reactions");
 	}
 	//System.out.println();
 }
-public double[] getReactions() {
+public Matrix getReactions() {
 	return reactions;
 }
 public void setForceLocation(Point location) {
