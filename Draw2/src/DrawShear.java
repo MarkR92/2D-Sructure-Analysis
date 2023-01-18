@@ -170,7 +170,7 @@ public class DrawShear {
 			
 			}
 	if(localReactions[1]>0) {
-		
+	
 		if(forcetype.matches("Point")) {
 			
 			g2d.rotate((angle),(midpoint.x),(midpoint.y));

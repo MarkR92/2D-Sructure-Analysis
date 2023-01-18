@@ -348,7 +348,7 @@ public class Main extends JFrame implements ComponentListener{
 							    //using the LocalMemberForces calculate the global member forces
 							    member.calculateGlobalMemberReactions().getArray();
 							   
-							    //covert 6 by 1 global foreces to dof by 1
+							    //covert 6 by 1 global forces to dof by 1
 						    	reactions.blowupLocalMemberForceVector(member.getGlobalMemberReactions().getColumnPackedCopy(), member.getNodeDOFList());
 						    	
 						    	//add blownup reactions to the members
@@ -401,17 +401,17 @@ public class Main extends JFrame implements ComponentListener{
 					}				
 			
 ////////////////////////////////////////////////////Node Forces////////////////////////////////////////////////////////	
-					double []TempForceQ = new double[drawPanel.getMemberDOF()];
+					
 					for (Node node : drawPanel.getFilteredNodes()) {
 						for (Forces f : drawPanel.getForces()) {
 							
 							if (node.getNodeNumber() == f.getNumber() && f.getType().matches("Moment")) {
 								
-								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getMemberDOF(),node.getNodeNumber(),TempForceQ,f.getType(),f.getAngle2());
+								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getMemberDOF(),node.getNodeNumber(),f.getType(),f.getAngle2());
 							}
 							if (node.getNodeNumber() == f.getNumber() && f.getType().matches("Point") && f.getLocation().x == node.getMidPoint().x && f.getLocation().y == node.getMidPoint().y) {
 							
-								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getMemberDOF(),node.getNodeNumber(),TempForceQ,f.getType(),f.getAngle2());
+								reactions.nodeReactionVector((f.getMagnitude()),drawPanel.getMemberDOF(),node.getNodeNumber(),f.getType(),f.getAngle2());
 							}
 
 
@@ -434,14 +434,17 @@ public class Main extends JFrame implements ComponentListener{
 					     d.blowupDisplacementVector(drawPanel.getFixtureType());
 					   
 					     U = d.getDisplacmentVector();
+					     
 					     drawPanel.addDisplacementResults(d.getDisplacmentVector());
 					    
 					    R = reactions.calculateGlobalReaction(globalStiffness.getGlobalStiffness (), d.getDisplacmentVector());
 					  
 					
 					    for (Member member : drawPanel.getMembers()) {
-					    
-					    	reactions.calculateLocalReactions(member.getLocalKPrime().getArray(), d.localDeflections(member.getNumber(),member.getBeta().getArray()),member.getNumber());
+					    	member.setLocalDeflections(U, globalStiffness.getReducedDofIndex());
+					    	reactions.calculateLocalReactions(member.getLocalKPrime().getArray(), member.getLocalDeflections().getColumnPackedCopy(),member.getNumber());
+							   
+					    	//reactions.calculateLocalReactions(member.getLocalKPrime().getArray(), d.localDeflections(member.getNumber(),member.getBeta().getArray()),member.getNumber());
 					   
 					    	drawPanel.addShearResults(reactions.getLocalReactions(),member.getForceType());
 					    }
@@ -751,15 +754,6 @@ public class Main extends JFrame implements ComponentListener{
 		drawPanel.addMouseMotionListener(new MouseAdapter() {
 			//When mouse is dragged
 			public void mouseDragged(MouseEvent de) {
-				//System.out.println("here2");
-				 
-//				int dx = de.getX() - last.x;
-//				 
-//				  int dy = de.getY() - last.y;
-				  
-				//  drawPanel.setTranslate(dx,dy);
-				 // drawPanel.setTranslate(drawPanel.getSnapX(),drawPanel.getSnapY());
-					
 				 
 				  drawPanel.repaint();
 			}

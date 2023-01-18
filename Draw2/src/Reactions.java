@@ -27,6 +27,7 @@ public class Reactions  {
 		   this.dof = dof;
 		   this.reduceddof = reduceddof;
 		   this.globalMemberForces=new double[dof];
+		   this.globalNodalForces= new double[dof];
 		    
 		}
 	
@@ -137,43 +138,32 @@ public class Reactions  {
 		
 	}
 	 
- public void nodeReactionVector( double P,int dof,int index,double[] globalQtemp, String forcetype,double direction) {
+ public void nodeReactionVector( double P,int dof,int index, String forcetype,double direction) {
 	 
      //Search's the structure and finds all the forces applied to nodes and places them into a list.
-	 
-	 globalNodalForces= new double[dof];
-	 
-	
-	 
-	
 //Check what the force type and direction is and assign to correct location in force vector.
 	 
 	 if(forcetype.matches("Moment")) {
 		 
-		globalQtemp[index*3-1]= P;
+		 globalNodalForces[index*3-1]= P;
 		 
 	 }
-	 
+	
 	 if(forcetype.matches("Point") && direction==0) {
-		
-		globalQtemp[index*3-2]= P;
+	
+		 globalNodalForces[index*3-2]= P;
 		
 	 }
 	
 	 if(forcetype.matches("Point") && direction==90) {
 		
-			globalQtemp[index*3-3]= P;
+		 globalNodalForces[index*3-3]= P;
 			
 	 }
 	 
-	 globalNodalForces=globalQtemp;
+	// globalNodalForces=globalQtemp;
 
-	for(int i=0;i< dof;i++) {
-		
-		//System.out.print(globalNodalForces[i] + "n ");
-	}
-	System.out.println();	
-//	
+
 	 }
  
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -388,17 +378,7 @@ public void calculateLocalReactions(double[][] Klocal, double[] Ulocal, int numb
 	}
 	
 		
-	for (int row =0; row<6;row++) {
-//		Rlocal[row]+=memberForces.get(number)[row];
-//		System.out.println(Rlocal[row] + " lo ");
-		//System.out.println(memberForces.get(number)[row]+"r");
-		//System.out.println(Rlocal[row]+" Rlocal");
-	//}
-	//System.out.println( );
-	
 
-	}
-	//System.out.println( );
 }
 public double[] getLocalReactions() {
 	

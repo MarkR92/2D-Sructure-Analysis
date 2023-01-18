@@ -33,6 +33,7 @@ public class Member implements Serializable {
 	
 	private Matrix reactions= new Matrix(new double[6][1]);
 	private Matrix globalreactions= new Matrix(new double[6][1]);
+	private Matrix localdeflections= new Matrix(new double[6][1]);
 	private double[] blownupglobalreactions;
 	private Color color;
 	private Point forcelocation;
@@ -69,8 +70,30 @@ public class Member implements Serializable {
 	}
 	
 	
-	
-	
+	public void setLocalDeflections(double[] U, int[] index)
+	{
+		 //U=new double[6];
+		
+		for( int i=0;i<doflist.length;i++)
+		{
+			for(int j=0;j<index.length;j++)
+			{
+				if(doflist[i]==index[j])
+				{
+					localdeflections.getArray()[i][0]=U[index[j]-1];
+				}
+				
+			}
+		}
+		System.out.print("**********Local Deflections Member: "+memberNumber+" ************");
+		localdeflections.print(1, 2);
+		System.out.println("********************************");
+		
+	}
+	public Matrix getLocalDeflections()
+	{
+		return getBeta().times(localdeflections);
+	}
 	
 	
 	
@@ -155,13 +178,7 @@ public class Member implements Serializable {
 	
 	
 	int[]	dofnodelist = {vs,hs,rs,ve,he,re};
-	
-	
-	for(int j = 0; j<dofnodelist.length; j++) {
-		//System.out.print(dofnodelist[j]+ "," );
-		//System.out.println(dofnodelistend[j]);
-		}
-	//	System.out.println();
+
 		
 		doflist=dofnodelist;
 	return dofnodelist;
@@ -173,7 +190,7 @@ public class Member implements Serializable {
 		System.out.println("Node dof List");
 		for(int j = 0; j<doflist.length; j++) {
 			System.out.print(doflist[j]+ "," );
-			////System.out.println(dofnodelistend[j]);
+			
 			}
 			System.out.println();
 		

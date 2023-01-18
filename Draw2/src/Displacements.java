@@ -2,20 +2,14 @@ import java.util.ArrayList;
 
 public class Displacements {
 	
-	public double[][] K = new double [3][3]; 	//Stiffness Matrix
-	public double[] F = new double [3];			//Force Vector
 	public double [] U;							//Displacement Vector
 	private double[] Uglobal;
-	private double[] Ulocal;
-	private double[] Ulocalprime;
 	private int reduceddof;
 	private int dof;
 	
 	public Displacements(int dof,int reduceddof) {
 		this.dof=dof;
 		this.reduceddof=reduceddof;
-		
-		//this.F=F;
 	}
 	
 	public double[] calculateDeflections(double[][] K, double[] F) {
@@ -27,8 +21,7 @@ public class Displacements {
 			for(int col = 0; col<reduceddof; col++) {
 				
 			U[row] += (K[row][col]*F[col])*1000*1000;
-			
-		//System.out.print(F[col] + "   h");
+	
 			}
 			System.out.print(U[row] + " U  ");
 			
@@ -110,46 +103,10 @@ public class Displacements {
 		
 			
 	}
-		for (int i =0; i<dof;i++) {
-			//System.out.print(Uglobal[i] + "   U");
-			}
-			//System.out.println();
-		//System.out.println();
+		
 	}
 	public double[] getDisplacmentVector() {
 		return Uglobal;
 	}
-	public double[] localDeflections(int beamnumber, double[][] beta) {
-		Ulocal = new double[6];
-		Ulocalprime=new double[6];
-		
-		int j = 0;
-	System.out.println(beamnumber+"beamnum");
-		for (int i=beamnumber*3;i<6+beamnumber*3; i++) {
-	//for (int i=beamnumber*3;i<6; i++) {
-		Ulocal[j]=Uglobal[i]; 
-		
-		//System.out.println(Ulocal[j]);
-		j++;
-		
-		}
-		
-		for(int i=0;i<6;i++) {
-			for(int k=0;k<6;k++) {
-				
-				//Ulocalprime[i]=0;
-				
-				//for(int z=0;z<6;z++) {
-					
-					Ulocalprime[i]+=((beta[i][k]*Ulocal[k]));
-				//}
-			}
-		}
-		for (int i =0; i<6;i++) {
-			//System.out.println(Ulocalprime[i] + "L ");
-			}
-		System.out.println();
-		return Ulocalprime;
-	}
-	
+//	
 }

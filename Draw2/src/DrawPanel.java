@@ -139,7 +139,7 @@ public class DrawPanel extends JPanel {
     	
     	}
     	nodesSorted=true;
-    	
+    
     }
     public boolean getNodesSortedResult() {
     	return nodesSorted;
