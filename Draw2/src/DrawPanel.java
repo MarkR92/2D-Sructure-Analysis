@@ -48,8 +48,7 @@ public class DrawPanel extends JPanel {
 	public ArrayList<Integer> beamends = new ArrayList<>();
 	
 	
-	
-	public ArrayList<String> fixtures = new ArrayList<>();
+//	public ArrayList<String> fixtures = new ArrayList<>();
 	public ArrayList<Forces> forces = new ArrayList<>();
 	
 	public ArrayList<DrawReactions> drawreactions = new ArrayList<>();
@@ -92,7 +91,6 @@ public class DrawPanel extends JPanel {
     	nodes.add(n);
     	n.setHighlighted(true);
     	
-    	addFixture();
     	filterNodes(n);
     	
         repaint();
@@ -354,12 +352,7 @@ public ArrayList<int[]> getSortedMemberNodes(){
 	}
 	return sortedMemberNodes;
 }
-//    
-    public void  addFixture() {
-    
-    	fixtures.add("Free");
 
-    }
 
     public void addForces(Forces f) {
     	
@@ -419,24 +412,7 @@ public ArrayList<int[]> getSortedMemberNodes(){
     	
     }
     
-    public void changeFixture(String fixture , Node n) {
-    	
-    	if( n.isSelected() ) {
-    	fixtures.set(n.getNodeNumber()-1, fixture);
-    	n.setSelected(false);
-    	
-    	}
-    }
-public void changeFixture2(String fixture , Node n) {
-    	
-    	
-    	fixtures.set(n.getNodeNumber()-1, fixture);
-    	
-    }
-    
-
-    
-  
+   
     
     public void deleteNode() {
     	 for (Iterator<Node> nodeIterator = nodes.iterator(); nodeIterator.hasNext();) {
@@ -607,11 +583,7 @@ public void changeFixture2(String fixture , Node n) {
     	this.trany=dy;
     }
     
-    public ArrayList<String> getFixtureType(){
-    	
- 		return fixtures;
-     	
-     }
+ 
     
     public ArrayList<Forces> getForces(){
     	
@@ -660,24 +632,28 @@ public void changeFixture2(String fixture , Node n) {
         for (Node node : nodesfilterd) {
         	
         	
-        	
+        
         			node.drawNode(g2d);
         			if(hideForces ==false) {
         				
-        			if(fixtures.get(node.getNodeNumber()-1).matches("Pinned") ){
+        	
+        		if(node.getFixture().matches("Pinned") )
+        		{
         			
         			node.drawFixturePinned(g2d);
         			
         		}
-        		 if(fixtures.get(node.getNodeNumber()-1).matches("Fixed") ){
-        			// System.out.println("here2");
+        		else if(node.getFixture().matches("Fixed") )
+        		{
+        			
          			node.drawFixtureFixed(g2d);
          		}
-        		 if(fixtures.get(node.getNodeNumber()-1).matches("Sliding") ){
+        		else if(node.getFixture().matches("Sliding") )
+        		{
         			 
           			node.drawFixtureSliding(g2d);
-          		//}
-        	}
+          		
+              	}
         		 
         		 
         	 for (Forces force:forces) {
@@ -756,7 +732,7 @@ public void changeFixture2(String fixture , Node n) {
     	nodes.clear();
 		nodesfilterd.clear();
 		
-		fixtures.clear();
+		//fixtures.clear();
 		members.clear();
 		forces.clear();
 		
@@ -776,7 +752,7 @@ public void changeFixture2(String fixture , Node n) {
     	
 
     	 Node[] node = nodesfilterd.toArray(new Node[nodesfilterd.size()]);
-    	 String[] fixture = fixtures.toArray(new String[fixtures.size()]);
+    	// String[] fixture = fixtures.toArray(new String[fixtures.size()]);
     	 Member[] member = members.toArray(new Member[members.size()]);
     	 Forces[] force = forces.toArray(new Forces[forces.size()]);
     	// DrawReactions[] drawreaction = drawreactions.toArray(new DrawReactions[drawreactions.size()]);
@@ -784,7 +760,7 @@ public void changeFixture2(String fixture , Node n) {
     	 
     	 
     	 oos.writeObject(node);
-    	 oos.writeObject(fixture);
+    	// oos.writeObject(fixture);
     	 oos.writeObject(member);
     	 oos.writeObject(force);
         // oos.writeObject(drawreaction);
@@ -815,7 +791,7 @@ public void changeFixture2(String fixture , Node n) {
 			//drawdisplacement.clear();
 			
 			nodesfilterd.addAll(Arrays.asList(node));
-			fixtures.addAll(Arrays.asList(fixture));
+			//fixtures.addAll(Arrays.asList(fixture));
 			members.addAll(Arrays.asList(member));
 			forces.addAll(Arrays.asList(force));
 			//drawreactions.addAll(Arrays.asList(drawreaction));

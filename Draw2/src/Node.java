@@ -25,6 +25,7 @@ private boolean highlighted;
 private boolean toAdd;
 private int dof;
 private double angle;
+private String fixture="Free";
 
 
 
@@ -45,6 +46,17 @@ public Node(int x, int y, int radius, int counter, boolean toAdd) {
 }
 public boolean toAdd() {
 	return toAdd;
+}
+public String getFixture()
+{
+	return fixture;
+	
+}
+
+public void changeFixture(String fixture)
+{
+	this.fixture=fixture;
+
 }
 
 public Point getCoord() {

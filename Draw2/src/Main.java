@@ -12,7 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.IOException;
-
+import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -49,7 +49,7 @@ public class Main extends JFrame implements ComponentListener{
 	private MenuBar menubar;
 	//private ScrollableGridDisplay grid;
 	private MaterialCollection materialCollection;
-	
+	public ArrayList<String> fixtures = new ArrayList<>();
 	private String E= "200000000000";
 	private String A="0.0006";
 	private String I="0.00006";
@@ -238,17 +238,17 @@ public class Main extends JFrame implements ComponentListener{
 				
 					if (parseText.getFixtures()[node.getNodeNumber()-1].equals("X") ){
 						
-						drawPanel.changeFixture2("Fixed",node);
-						
+					node.changeFixture("Fixed");
+					
 					}
 					if (parseText.getFixtures()[node.getNodeNumber()-1].equals("P") ) {
 						
-						drawPanel.changeFixture2("Pinned",node);
+						node.changeFixture("Pinned");
 						
 					}
 					if (parseText.getFixtures()[node.getNodeNumber()-1].equals("S") ) {
 						
-						drawPanel.changeFixture2("Sliding",node);
+						node.changeFixture("Sliding");
 						
 					}
 //					  if (forcepane.getForce() == "Point") {		//Point Force Selected
@@ -316,15 +316,21 @@ public class Main extends JFrame implements ComponentListener{
 								member.calculateNodeDOFList2(start2,end2);
 								
 							}
+							
 						}
+						
 						//blows up local stiffness matrices from 6 by 6 to dof by dof. 
 						globalStiffness.blowupLocalStiffness(member.getLocalStiffness(),member.getNodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
 						
-					
 					}
+						for (Node node : drawPanel.getFilteredNodes()) {
+						
+							fixtures.add(node.getFixture());
+						
+						}
 					
 					
-					globalStiffness.reduceglobalStiffness(drawPanel.getFixtureType());//reduce globalK depending on fixtures
+					globalStiffness.reduceglobalStiffness(fixtures);//reduce globalK depending on fixtures
 					
 					Reactions reactions = new Reactions(drawPanel.getMemberDOF(), globalStiffness.getReducedDOF());
 		
@@ -425,13 +431,13 @@ public class Main extends JFrame implements ComponentListener{
 			
 					if(globalStiffness.getReducedDOF()!=0) {
 						
-					reactions.reduceForceVector(drawPanel.getFixtureType());
+					reactions.reduceForceVector(fixtures);
 					
 					    Displacements d = new Displacements( drawPanel.getMemberDOF(), globalStiffness.getReducedDOF());
 					    
 					    d.calculateDeflections(globalStiffness.getreducedGlobalStiffnessInverse().getArray(), reactions.getReducedForceVector());
 					  
-					     d.blowupDisplacementVector(drawPanel.getFixtureType());
+					     d.blowupDisplacementVector(fixtures);
 					   
 					     U = d.getDisplacmentVector();
 					     
@@ -530,22 +536,25 @@ public class Main extends JFrame implements ComponentListener{
 					  fixturepane = new FixturePopupPanel(); 	//Instance of Popup Panel
 					  fixturepane.createPopup();  				//Display fixture menu pane
 					
-								if (fixturepane.isFixture() == "Fixed") {
+								if (fixturepane.isFixture() == "Fixed")
+								{
 									n.setAngle(fixturepane.getAngle());
-									drawPanel.changeFixture("Fixed", n);
-							
+									n.changeFixture("Fixed");
+									n.setSelected(false);
 								}
 								
-								if (fixturepane.isFixture() == "Pinned") {
+								else if  (fixturepane.isFixture() == "Pinned") 
+								{
 									n.setAngle(fixturepane.getAngle());
-									drawPanel.changeFixture("Pinned",n);
-									
+									n.changeFixture("Pinned");
+									n.setSelected(false);
 								}
 								
-								if (fixturepane.isFixture() == "Sliding") {
+								else if (fixturepane.isFixture() == "Sliding")
+								{
 									n.setAngle(fixturepane.getAngle());
-									drawPanel.changeFixture("Sliding",n);
-									//System.out.println("h2");
+									n.changeFixture("Sliding");
+									n.setSelected(false);
 								}
 								if (fixturepane.getAngle()!=0) {
 									
