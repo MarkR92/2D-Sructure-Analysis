@@ -34,7 +34,7 @@ public class ForcePopupPanel extends JPanel {
 	//private int size;
 	private JSlider degreeSlider;
 	
-public String getForce( ) {
+public String getForceType( ) {
 	return force;
 }
 
@@ -62,7 +62,7 @@ public void createPopup() {
 		degreeSlider.setMinorTickSpacing(5);
 		degreeSlider.setPaintTicks(true);
 		degreeSlider.setPaintLabels(true);
-		
+	
 		
 		//sizeangle.setText(String.valueOf(degreeSlider.getValue()));
 		

@@ -131,7 +131,7 @@ public class Forces implements Serializable {
 
 				if (highlighted||selected) {
 				gp.drawRect(currentlocation.x-5, currentlocation.y, 10,30);
-			
+		
 				
 				
 				}

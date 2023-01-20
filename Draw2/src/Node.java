@@ -26,6 +26,9 @@ private boolean toAdd;
 private int dof;
 private double angle;
 private String fixture="Free";
+//private double[] magnitude=ne;
+private String forcedirection;
+private String forcetype;
 
 
 
@@ -52,12 +55,18 @@ public String getFixture()
 	return fixture;
 	
 }
-
 public void changeFixture(String fixture)
 {
 	this.fixture=fixture;
 
 }
+public void addForce(double magnitude,String forcetype,String direction)
+{
+	//this.magnitude.add(magnitude);
+	
+}
+
+
 
 public Point getCoord() {
 	Point coord = new Point(x,y);

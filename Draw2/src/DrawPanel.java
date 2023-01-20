@@ -331,13 +331,7 @@ public ArrayList<Point>  sortMemberNodeCoordinate() {
 	
  	for(int i=0;i< members.size();i++) {
  		System.out.println(members.get(i).getNumber()+" , "+members.get(i).getNodesList()[0]+", "+members.get(i).getNodesList()[1]);
- 		
- 		//members.get(i).setMemberNum(i);
-// 	System.out.println(members.get(i).getMemberEnd()+","+ "StartSorted");
-// 	System.out.println(members.get(i).getMemberStart()+","+ "EndSorted");
- 	
- 		//System.out.println( members.get(i).getMidPoint()+"MidPoint"+members.get(i).getNumber()+" , "+members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
- 		//System.out.println(members.get(i).getNodesList()[0]+","+members.get(i).getNodesList()[1]);
+
  	}
  	System.out.println();
 
@@ -448,7 +442,7 @@ public ArrayList<int[]> getSortedMemberNodes(){
    		if (member.isSelected()) {
    			
    		 memberIterator.remove();
-   		 
+   		
    		}
 
         }
@@ -527,6 +521,13 @@ public ArrayList<int[]> getSortedMemberNodes(){
     	return dof;
     
     }
+    public int setBeamdof(int dof) {
+    	//beams.size();
+    	this.dof=dof*3;
+    	
+    	return dof;
+    
+    }
     public int getNodeNum() {
     	//beams.size();
     	//int dof = beams.size()*3;
@@ -561,13 +562,7 @@ public ArrayList<int[]> getSortedMemberNodes(){
     	return beamset;
     }
     
-    public int setBeamdof(int dof) {
-    	//beams.size();
-    	this.dof=dof*3;
-    	
-    	return dof;
-    
-    }
+
     public void setZoom(double zoom) {
     	//System.out.println(zoom + "zoom");
     	zoom=Math.round(zoom*10.0)/10.0;

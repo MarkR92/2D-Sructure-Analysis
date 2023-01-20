@@ -136,31 +136,7 @@ public class Member implements Serializable {
 			
 		}
 	
-//	public int[] calculateNodeDOFList() {
-//
-//			vs=startNode*3-2;
-//			hs=vs+1;
-//			rs=hs+1;
-//			
-//
-//			ve=endNode*3-2;
-//			he=ve+1;
-//			re=he+1;
-//		
-//		
-//		int[]	dofnodelist = {vs,hs,rs,ve,he,re};
-//		
-//		
-//		for(int j = 0; j<dofnodelist.length; j++) {
-//			//System.out.print(dofnodelist[j]+ "," );
-//			//System.out.println(dofnodelistend[j]);
-//			}
-//		//	System.out.println();
-//			
-//			doflist=dofnodelist;
-//		return dofnodelist;
-//		
-//	}
+
 	
 	public int[] calculateNodeDOFList2(int start,int end) {
 		//System.out.println("here");

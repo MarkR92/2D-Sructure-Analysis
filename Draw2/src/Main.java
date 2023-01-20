@@ -66,6 +66,7 @@ public class Main extends JFrame implements ComponentListener{
 	
 	private boolean toAdd = true;
 	private int count3=0;
+	private boolean resetglobalstiffness=false;
 	
 	int	memberNumber = 0;
 	int start2;
@@ -89,7 +90,7 @@ public class Main extends JFrame implements ComponentListener{
 		fileChooser.addChoosableFileFilter(new StructureFileFilter());
 		fixturetype.Free(); //all nodes start free
 		
-		
+	
 		JFrame frame = new JFrame(); // Instance of a JFrame
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -296,7 +297,8 @@ public class Main extends JFrame implements ComponentListener{
 					drawPanel.deleteReactions();
 					drawPanel.deleteDisplacements();
 
-					int dof =drawPanel.getMemberDOF();
+					int dof =drawPanel.getFilteredNodes().size()*3;
+					System.out.println(dof);
 					
 					CreateGlobalMatrix globalStiffness = new CreateGlobalMatrix(dof);//create dof by dof global matrix.
 					
@@ -323,16 +325,17 @@ public class Main extends JFrame implements ComponentListener{
 						globalStiffness.blowupLocalStiffness(member.getLocalStiffness(),member.getNodeDOFList());											 //blowup localk(6 by 6) up into globalk(dof by dof)
 						
 					}
+						fixtures.clear();
 						for (Node node : drawPanel.getFilteredNodes()) {
 						
-							fixtures.add(node.getFixture());
+							fixtures.add(node.getFixture());// gets all the fixture types from nodes.
 						
 						}
 					
 					
 					globalStiffness.reduceglobalStiffness(fixtures);//reduce globalK depending on fixtures
 					
-					Reactions reactions = new Reactions(drawPanel.getMemberDOF(), globalStiffness.getReducedDOF());
+					Reactions reactions = new Reactions(dof, globalStiffness.getReducedDOF());
 		
 						
 ////////////////////////////////////////////////////Member Forces////////////////////////////////////////////////////////
@@ -433,7 +436,7 @@ public class Main extends JFrame implements ComponentListener{
 						
 					reactions.reduceForceVector(fixtures);
 					
-					    Displacements d = new Displacements( drawPanel.getMemberDOF(), globalStiffness.getReducedDOF());
+					    Displacements d = new Displacements( dof, globalStiffness.getReducedDOF());
 					    
 					    d.calculateDeflections(globalStiffness.getreducedGlobalStiffnessInverse().getArray(), reactions.getReducedForceVector());
 					  
@@ -523,7 +526,7 @@ public class Main extends JFrame implements ComponentListener{
 				drawPanel.deleteMember(); 		// Delete selected beam
 				drawPanel.deleteForce(); 		// Delete selected point load
 				drawPanel.deleteFilteredNode();
-				
+				resetglobalstiffness = true;
 				drawPanel.repaint(); // Update graphics
 				}
 				
@@ -582,19 +585,19 @@ public class Main extends JFrame implements ComponentListener{
 						forcepane = new ForcePopupPanel(); 				//Instance of Popup Panel
 						forcepane.createPopup();  						//Force popup panel is displayed
 						  
-						  if (forcepane.getForce() == "Point") {		//Point Force Selected
+						  if (forcepane.getForceType() == "Point") {		//Point Force Selected
 								//add to Arraylist 
-								drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),forcepane.getDirection2(),n.getNodeNumber(),n.getMidPoint(), 0.0,forcepane.getAngle(), n.getCoord(),n.getCoord()));
-								
+								drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),forcepane.getDirection2(),n.getNodeNumber(),n.getMidPoint(), 0.0,forcepane.getAngle(), n.getCoord(),n.getCoord()));
+								//n.addForce(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection());
 								n.setSelected(false);
 							
 								drawPanel.repaint();
 								
 							}
-						  //System.out.println(n.getMidPoint() + "here");
-						  if (forcepane.getForce() == "Moment") { //Point Force Selected
+						 
+						  if (forcepane.getForceType() == "Moment") { //Point Force Selected
 								//add to Arraylist 
-								drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),"Perpendicular",n.getNodeNumber(),n.getMidPoint(), 0.0,forcepane.getAngle(),n.getCoord(),n.getCoord()));
+								drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),"Perpendicular",n.getNodeNumber(),n.getMidPoint(), 0.0,forcepane.getAngle(),n.getCoord(),n.getCoord()));
 								
 								n.setSelected(false);
 							
@@ -614,23 +617,23 @@ public class Main extends JFrame implements ComponentListener{
 					
 						  
 						  
-									if (forcepane.getForce() == "Point") { //Point Force Selected
+									if (forcepane.getForceType() == "Point") { //Point Force Selected
 										//add to Arraylist 
-										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),forcepane.getDirection2(),member.getNumber(),member.getMidPoint(), member.getAngle(),forcepane.getAngle(), member.getMemberStart(), member.getMemberEnd()));
+										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),forcepane.getDirection2(),member.getNumber(),member.getMidPoint(), member.getAngle(),forcepane.getAngle(), member.getMemberStart(), member.getMemberEnd()));
 										
 										member.setSelected(false);
 									
 										drawPanel.repaint();
 										
 									}
-									if (forcepane.getForce() == "UDL") {
+									if (forcepane.getForceType() == "UDL") {
 										
-										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),"Perpendicular",member.getNumber(), member.getMidPoint(), member.getAngle(),forcepane.getAngle(),member.getMemberStart(), member.getMemberEnd()));
+										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),"Perpendicular",member.getNumber(), member.getMidPoint(), member.getAngle(),forcepane.getAngle(),member.getMemberStart(), member.getMemberEnd()));
 										drawPanel.repaint();
 									}
-									if (forcepane.getForce() == "Moment") { //Point Force Selected
+									if (forcepane.getForceType() == "Moment") { //Point Force Selected
 										//add to Arraylist 
-										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForce(), forcepane.getDirection(),"Perpendicular",member.getNumber(),member.getMidPoint(), member.getAngle(),forcepane.getAngle(),member.getMemberStart(), member.getMemberEnd()));
+										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),"Perpendicular",member.getNumber(),member.getMidPoint(), member.getAngle(),forcepane.getAngle(),member.getMemberStart(), member.getMemberEnd()));
 										
 										member.setSelected(false);
 									
@@ -638,7 +641,7 @@ public class Main extends JFrame implements ComponentListener{
 										
 									}
 									
-									member.setForceType(forcepane.getForce());
+									member.setForceType(forcepane.getForceType());
 									
 									member.setSelected(false);
 								
@@ -1062,7 +1065,7 @@ public class Main extends JFrame implements ComponentListener{
 						if (count == 2) {
 						
 							drawPanel.addMember(new Member(x1, y1, x2, y2,memberNumber,startNode,endNode));
-					//		System.out.println(currentnodenumber.getNodeNumber());
+							//System.out.println(currentnodenumber.getNodeNumber());
 							drawPanel.setBeamdof(currentnodenumber.getNodeNumber());
 							drawPanel.sortMemberMidPointCoordinate();
 							drawPanel.sortNodeCoordinate();

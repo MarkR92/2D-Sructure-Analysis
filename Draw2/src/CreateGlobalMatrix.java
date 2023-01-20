@@ -27,6 +27,7 @@ public class CreateGlobalMatrix {
 		
 	    this.dof = dof;
 	    globalStiffness= new Matrix(new double[dof][dof]);
+	    reduceddof=0;
 	   
 	}
 
