@@ -138,7 +138,7 @@ public class Reactions  {
 		
 	}
 	 
- public void nodeReactionVector( double P,int dof,int index, String forcetype,double direction) {
+ public void nodeReactionVector( double P,String forcetype,double direction,int index) {
 	 
      //Search's the structure and finds all the forces applied to nodes and places them into a list.
 //Check what the force type and direction is and assign to correct location in force vector.

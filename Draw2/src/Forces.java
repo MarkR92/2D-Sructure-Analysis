@@ -74,7 +74,7 @@ public class Forces implements Serializable {
 		return magnitude;
 		}
 	public String getDirection2() {
-		 
+		
 		return direction2;
 		}
 	public double getAngle2() {

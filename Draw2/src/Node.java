@@ -1,9 +1,11 @@
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 
 
@@ -27,8 +29,11 @@ private int dof;
 private double angle;
 private String fixture="Free";
 //private double[] magnitude=ne;
+
 private String forcedirection;
 private String forcetype;
+
+public ArrayList<Forces2> forces = new ArrayList<>();
 
 
 
@@ -60,9 +65,14 @@ public void changeFixture(String fixture)
 	this.fixture=fixture;
 
 }
-public void addForce(double magnitude,String forcetype,String direction)
+public void addForce(Forces2 forces2)
 {
-	//this.magnitude.add(magnitude);
+	this.forces.add(forces2);
+	
+}
+public ArrayList<Forces2> getForce()
+{
+	return forces;
 	
 }
 
@@ -108,7 +118,7 @@ public void drawNode(Graphics2D g2d) {
 	 
     g2d.setColor(color);
    
-    g2d.drawOval(x+5, y+5, radius, radius);
+  //  g2d.drawOval(x+5, y+5, radius, radius);
     
     if ((highlighted || selected)) {
     	g2d.fillOval(x+5, y+5, radius, radius);
@@ -118,12 +128,38 @@ public void drawNode(Graphics2D g2d) {
     	
     	g2d.drawOval(x+5, y+5, radius, radius);
     }
+
+	if (fixture.equals("Fixed"))
+	{
+		drawFixtureFixed( g2d);
+	}
+	else if(fixture.equals("Pinned"))
+	{
+		drawFixturePinned(g2d);
+	}
+	else if(fixture.equals("Sliding"))
+	{
+		 drawFixtureSliding(g2d);
+	}else {
+		 g2d.drawOval(x+5, y+5, radius, radius);
+	}
+	
+//	for(int i=0;i<forces.size();i++)
+//	{
+//		double rotation= Math.toRadians(forces.get(i).direction);
+//		double magnitude= forces.get(i).magnitude;
+//		drawPointLoad(g2d,magnitude,rotation);
+//	}
     
    
 }
+
+
+
+
 public void drawFixturePinned(Graphics2D g2df) {
 	AffineTransform old = g2df.getTransform();
-	//double rotation =-convertAngle();
+	
 		//Rotate graphic so it is perpendicular to beam
 	g2df.rotate((angle),(x),(y));
 	

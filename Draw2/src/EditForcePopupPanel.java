@@ -13,22 +13,25 @@ public class EditForcePopupPanel extends JPanel {
 
 
 	private JTextField size;
+	private JTextField anglefield;
 	
-	private double magnitude2;
+	private double magnitude;
 	private JLabel magLabel;
 	
+	private double angle;
+	private JLabel anglelabel;
 	
 	
-	public void createPopup(double magnitude) {
-		
-	this.magnitude2=magnitude;
-		
+	
+	public void createPopup(double magnitude,double angle) {
+
 		JPanel editpanel = new JPanel();
 		
 		magLabel = new JLabel("Magnitude: ");
 		size = new JTextField(Double.toString(magnitude) );
 		
-		//Double.parseDouble(size.getText());
+		anglelabel = new JLabel("Angle: ");
+		anglefield = new JTextField(Double.toString(angle) );
 		
 		editpanel.setLayout(new GridBagLayout());
 		
@@ -40,7 +43,7 @@ public class EditForcePopupPanel extends JPanel {
 		
 		gc.gridx = 0;
 		gc.gridy = 0;
-		
+	
 		
 		
 		gc.fill = GridBagConstraints.NONE;
@@ -53,22 +56,44 @@ public class EditForcePopupPanel extends JPanel {
 		
 		gc.anchor = GridBagConstraints.LINE_START;
 		editpanel.add(size,gc);
+/////////////////////////////////////////////////////////////////////////////////		
+		gc.weightx=1;
+		gc.weighty=1;
+		
+		gc.gridx = 0;
+		gc.gridy = 1;
+	
+		gc.fill = GridBagConstraints.NONE;
+		
+		gc.anchor = GridBagConstraints.LINE_END;
+		editpanel.add(anglelabel, gc);
+		gc.gridx = 1;
+		gc.gridy = 1;
 		
 		
-int action = JOptionPane.showConfirmDialog(null,editpanel, "Edit Force",JOptionPane.OK_CANCEL_OPTION);
+		gc.anchor = GridBagConstraints.LINE_START;
+		editpanel.add(anglefield,gc);
 		
-		if (action == JOptionPane.OK_OPTION) {
-			
-			 magnitude2 = Double.parseDouble(size.getText());
+		
+		int action = JOptionPane.showConfirmDialog(null,editpanel, "Edit Force",JOptionPane.OK_CANCEL_OPTION);
+		
+		if (action == JOptionPane.OK_OPTION)
+		{
+			 this.magnitude = Double.parseDouble(size.getText());
+			 this.angle=Double.parseDouble(anglefield.getText());
+		}
+		
 	}
-		//return magnitude2;
+
+
+
+	public double getMagnitude() 
+	{
+		return magnitude;
 	}
-
-
-
-	public double getMagnitude() {
-		// TODO Auto-generated method stub
-		return magnitude2;
+	public double getDirection()
+	{
+		return angle;
 	}
 
 }

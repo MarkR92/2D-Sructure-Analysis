@@ -619,53 +619,41 @@ public ArrayList<int[]> getSortedMemberNodes(){
 
 				
 				g2d.setColor(Color.lightGray);
-			//	g2d.drawRect(x.get(i), y.get(ii),10, 10);
-				//System.out.println(x.get(i));
+		
 				
 				
 	
-        for (Node node : nodesfilterd) {
-        	
-        	
-        
-        			node.drawNode(g2d);
-        			if(hideForces ==false) {
+        for (Node node : nodesfilterd)
+        {
+        	node.drawNode(g2d);
+        			
+        	if(hideForces ==false)
+        	{
         				
         	
-        		if(node.getFixture().matches("Pinned") )
+        		for (Forces2 force:node.getForce())
         		{
-        			
-        			node.drawFixturePinned(g2d);
-        			
-        		}
-        		else if(node.getFixture().matches("Fixed") )
-        		{
-        			
-         			node.drawFixtureFixed(g2d);
-         		}
-        		else if(node.getFixture().matches("Sliding") )
-        		{
-        			 
-          			node.drawFixtureSliding(g2d);
-          		
-              	}
+        					 
+        			force.drawForce(g2d);
+        	        
+        	    }
         		 
         		 
-        	 for (Forces force:forces) {
-        		 
-        		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Point")) {
-        			 //System.out.println("hereforce2");
-     				force.drawPointLoad(g2d);
-				 }
-        		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Moment")) {
-        				force.drawMoment(g2d);
-  				 }
-        		 
-        	 }
+//        	 for (Forces force:forces) {
+//        		 
+//        		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Point")) {
+//        			 //System.out.println("hereforce2");
+//     				//force.drawPointLoad(g2d);
+//				 }
+//        		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Moment")) {
+//        			//	force.drawMoment(g2d);
+//  				 }
+//        		 
+//        	 }
         	
         		
 
-        }
+        			}
         }
             
 
@@ -709,12 +697,9 @@ public ArrayList<int[]> getSortedMemberNodes(){
             	//TempMember tempmember = new TempMember();
             	//
             	for (TempMember tempmember:tempmember) {
-            		//drawdisplacement.drawDisplacments(g2d);
+            		
             		tempmember.drawTemp(g2d);
             		
-            		//tempmember.drawCurrent(g2d);
-            		//tempmember.clear();
-            	//tempmember.clear();
             		}
             	
             	tempmember.clear();
