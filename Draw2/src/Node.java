@@ -6,6 +6,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 
@@ -154,7 +155,21 @@ public void drawNode(Graphics2D g2d) {
    
 }
 
+public void deleteForce() {
+	
+ 	 for (Iterator<Forces2> forceIterator = forces.iterator(); forceIterator.hasNext();) {
+ 		 
+ 		Forces2 forces = forceIterator.next();
+ 		
+ 		if (forces.isSelected()) {
+ 			
+ 		 forceIterator.remove();
+ 		 
+ 		}
 
+      }
+ 	
+ }
 
 
 public void drawFixturePinned(Graphics2D g2df) {

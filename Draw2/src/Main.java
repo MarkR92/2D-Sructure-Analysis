@@ -515,8 +515,12 @@ public class Main extends JFrame implements ComponentListener{
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				
 				if (result == "Delete") { 
-					
+					for (Node node : drawPanel.getFilteredNodes())
+					{
+					 node.deleteForce();
+					}
 				drawPanel.deleteNode(); 		// Delete selected node
+				
 				drawPanel.deleteMember(); 		// Delete selected beam
 				drawPanel.deleteForce(); 		// Delete selected point load
 				drawPanel.deleteFilteredNode();
