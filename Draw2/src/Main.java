@@ -74,6 +74,8 @@ public class Main extends JFrame implements ComponentListener{
 	private int startNode;
 	private int endNode;
 	
+	boolean isforceselected=false;
+	boolean isforcehighlighted=false;
 	public Main() {
 
 		toolbar = new Toolbar();
@@ -298,11 +300,11 @@ public class Main extends JFrame implements ComponentListener{
 					drawPanel.deleteDisplacements();
 
 					int dof =drawPanel.getFilteredNodes().size()*3;
-					System.out.println(dof);
+					
 					
 					CreateGlobalMatrix globalStiffness = new CreateGlobalMatrix(dof);//create dof by dof global matrix.
 					
-				//this just handles how the structure is drawn. by deafault the user draws from left to right but just incase they draw right to left!
+				//this just handles how the structure is drawn. by default the user draws from left to right but just incase they draw right to left!
 					for (Member member : drawPanel.getMembers()) {		
 						for (Node node : drawPanel.getFilteredNodes()) {
 			
@@ -598,7 +600,7 @@ public class Main extends JFrame implements ComponentListener{
 						  else if (forcepane.getForceType() == "Moment") { //Point Force Selected
 								//add to Arraylist 
 								drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),"Perpendicular",n.getNodeNumber(),n.getMidPoint(), 0.0,forcepane.getAngle(),n.getCoord(),n.getCoord()));
-							  n.addForce(new Forces2(forcepane.getMagnitude(), forcepane.getAngle(),n.getMidPoint(),"Moment"));
+							    n.addForce(new Forces2(forcepane.getMagnitude(), forcepane.getAngle(),n.getMidPoint(),"Moment"));
 								n.setSelected(false);
 							
 								drawPanel.repaint();
@@ -617,24 +619,29 @@ public class Main extends JFrame implements ComponentListener{
 					
 						  
 						  
-									if (forcepane.getForceType() == "Point") { //Point Force Selected
+									if (forcepane.getForceType() == "Point")
+									{ //Point Force Selected
 										//add to Arraylist 
 										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),forcepane.getDirection2(),member.getNumber(),member.getMidPoint(), member.getAngle(),forcepane.getAngle(), member.getMemberStart(), member.getMemberEnd()));
+										member.addForce(new Forces2(forcepane.getMagnitude(), forcepane.getAngle(),member.getMidPoint(),"Point"));
 										
 										member.setSelected(false);
 									
 										drawPanel.repaint();
 										
 									}
-									if (forcepane.getForceType() == "UDL") {
+									if (forcepane.getForceType() == "UDL")
+									{
 										
 										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),"Perpendicular",member.getNumber(), member.getMidPoint(), member.getAngle(),forcepane.getAngle(),member.getMemberStart(), member.getMemberEnd()));
+										member.addForce(new Forces2(forcepane.getMagnitude(), forcepane.getAngle(),member.getMidPoint(),member.getMemberStart(), member.getMemberEnd(),"UDL",member.getAngle(),member.getLength()));
 										drawPanel.repaint();
 									}
-									if (forcepane.getForceType() == "Moment") { //Point Force Selected
+									if (forcepane.getForceType() == "Moment") 
+									{ //Point Force Selected
 										//add to Arraylist 
 										drawPanel.addForces(new Forces(forcepane.getMagnitude(),forcepane.getForceType(), forcepane.getDirection(),"Perpendicular",member.getNumber(),member.getMidPoint(), member.getAngle(),forcepane.getAngle(),member.getMemberStart(), member.getMemberEnd()));
-										
+										member.addForce(new Forces2(forcepane.getMagnitude(), forcepane.getAngle(),member.getMidPoint(),"Moment"));
 										member.setSelected(false);
 									
 										drawPanel.repaint();
@@ -765,6 +772,7 @@ public class Main extends JFrame implements ComponentListener{
 		// Listen for mouse movement on JPanel
 		drawPanel.addMouseMotionListener(new MouseAdapter() {
 			//When mouse is dragged
+			
 			public void mouseDragged(MouseEvent de) {
 				 
 				  drawPanel.repaint();
@@ -809,12 +817,15 @@ public class Main extends JFrame implements ComponentListener{
 						if (force.getPointBounds().contains(me.getPoint())) { // is mouse near beam
 							if (!force.isHighlighted()) {
 								force.setHighlighted(true);
+								isforcehighlighted=true;
 								// System.out.println(f.isHighlighted());
+								
 							}
 
 						} else {
 
 							force.setHighlighted(false);
+							isforcehighlighted=false;
 						}
 					}
 
@@ -833,30 +844,32 @@ public class Main extends JFrame implements ComponentListener{
 						//member.getnodeDOFList();
 					};
 					
-					if (member.getbounds().contains(me.getPoint())) { // is mouse near beam
+					if (member.getbounds().contains(me.getPoint())& !isforcehighlighted) { // is mouse near beam
 						if (!member.isHighlighted()) {
 							member.setHighlighted(true);
-							//System.out.println(b.getLength2());
-							// System.out.println(b.isHighlighted(););
+						
 						}
 
 					} else {
 
 						member.setHighlighted(false);
 					}
-					for (Forces f : drawPanel.getForces()) {// iterate through each beam
-						if (f.getPointBounds().contains(me.getPoint())) { // is mouse near beam
-							if (!f.isHighlighted()) {
-								f.setHighlighted(true);
+					for(Forces2 force :member.getForce()) 
+					{
+						if (force.getPointBounds().contains(me.getPoint()))
+		{ // is mouse near beam
+							if (!force.isHighlighted()) {
+								force.setHighlighted(true);
+								
 								// System.out.println(f.isHighlighted());
 							}
 
 						} else {
 
-							f.setHighlighted(false);
+							force.setHighlighted(false);
 						}
-						if(f.isSelected() && member.getbounds().contains(me.getPoint()) && member.getNumber() == f.getNumber() ) {
-							f.setLocation(drawPanel.getSnapX(),drawPanel.getSnapY());
+						if(force.isSelected()  ) {
+							//force.setLocation(drawPanel.getSnapX(),drawPanel.getSnapY());
 							//f.setLocation(me.getPoint().x,me.getPoint().y);
 							
 						}
@@ -868,16 +881,10 @@ public class Main extends JFrame implements ComponentListener{
 			}
 			
 		});
-
+		
 		drawPanel.addMouseListener(new MouseAdapter() {
 			
 			int count = 0;
-			
-			
-			
-			
-			//CalculateNodeNumber currentnodenumber = new CalculateNodeNumber(); //Keeps track of current nodenumber and how/if it will be modified.
-			
 			public void mousePressed(MouseEvent e) {
 			
 				
@@ -887,53 +894,6 @@ public class Main extends JFrame implements ComponentListener{
 			
 				
 				}
-
-				
-				for (Member member : drawPanel.getMembers()) {
-					//member.calculateYintercept();
-					if(e.getClickCount()==2 && member.getbounds().contains(e.getPoint()) ) {
-					
-						editmaterial = new EditMaterialPopup();
-						editmaterial.setEditMaterialPopupListener(new EditMaterialPopupListener() {
-
-							@Override
-							public void stringEmitted(String editresult) {
-								if(editresult=="OK") {
-									member.setMaterialName(editmaterial.getSelectedName());
-									member.setE(Double.parseDouble(editmaterial.getSelectedE()));
-									member.setA(Double.parseDouble(editmaterial.getSelectedA()));
-									member.setI(Double.parseDouble(editmaterial.getSelectedI()));
-								//	System.out.println(editmaterial.getSelectedName());
-									//member.setE(Double.parseDouble(editmaterial.getSelectedE()));
-								}
-								
-							}
-							
-						});
-						
-						for(Material material:materialCollection.getMaterialCollection()) {
-							//Shows all material currently in the material libary.
-							editmaterial.createNameList(material.getName());
-							//System.out.println(material.getE());
-							//editmaterial.setSelectedE(material.getE());
-						}
-					
-						editmaterial.createPopup(member.getE(),member.getA(),member.getI());
-
-					}
-					if (member.getbounds().contains(e.getPoint()) && !toolbar.isdrawing) {
-						if (!member.isSelected()) {// check if beam has been clicked on
-							member.setSelected(true);
-							// System.out.println(b.isSelected());
-							drawPanel.repaint();
-						} else {
-							member.setSelected(false);
-						}
-					}
-					
-				}
-				//
-
 				for (Node n : drawPanel.getFilteredNodes()) {// iterate through each node
 					
 					if(e.getClickCount()==2 && n.getBounds().contains(e.getPoint())&& !toolbar.isdrawing ) {
@@ -983,10 +943,12 @@ public class Main extends JFrame implements ComponentListener{
 							if (!force.isSelected())
 							{
 								force.setSelected(true);
+								isforceselected=true;
 						    }
 							else 
 						    {
 							    force.setSelected(false);
+							    isforceselected=false;
 						    }
 					   }
 						if (force.isSelected())
@@ -996,6 +958,54 @@ public class Main extends JFrame implements ComponentListener{
 						
 						}
 				  }
+
+				
+				for (Member member : drawPanel.getMembers()) {
+					//member.calculateYintercept();
+					if(e.getClickCount()==2 && member.getbounds().contains(e.getPoint()) && !isforceselected) {
+					
+						editmaterial = new EditMaterialPopup();
+						editmaterial.setEditMaterialPopupListener(new EditMaterialPopupListener() {
+
+							@Override
+							public void stringEmitted(String editresult) {
+								if(editresult=="OK") {
+									member.setMaterialName(editmaterial.getSelectedName());
+									member.setE(Double.parseDouble(editmaterial.getSelectedE()));
+									member.setA(Double.parseDouble(editmaterial.getSelectedA()));
+									member.setI(Double.parseDouble(editmaterial.getSelectedI()));
+								//	System.out.println(editmaterial.getSelectedName());
+									//member.setE(Double.parseDouble(editmaterial.getSelectedE()));
+								}
+								
+							}
+							
+						});
+						
+						for(Material material:materialCollection.getMaterialCollection()) {
+							//Shows all material currently in the material libary.
+							editmaterial.createNameList(material.getName());
+							//System.out.println(material.getE());
+							//editmaterial.setSelectedE(material.getE());
+						}
+					
+						editmaterial.createPopup(member.getE(),member.getA(),member.getI());
+
+					}
+					if (member.getbounds().contains(e.getPoint()) && !toolbar.isdrawing) {
+						if (!member.isSelected()&&!isforceselected ) {// check if beam has been clicked on
+							member.setSelected(true);
+							// System.out.println(b.isSelected());
+							drawPanel.repaint();
+						} else {
+							member.setSelected(false);
+						}
+					}
+					
+				}
+				//
+
+				
 					
 				}
 

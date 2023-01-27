@@ -6,6 +6,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import Jama.Matrix;
 
 
@@ -51,8 +54,8 @@ public class Member implements Serializable {
 	private double A = 0.0006;
 	public double I = 60*Math.pow(10, -6);
 	private String materialname="Default";
-	
-	//private double L;
+	private ArrayList<Forces2> forces = new ArrayList<>();
+
 	
 	Member(int x1, int y1, int x2, int y2, int memberNumber,int startNode,int endNode) {
 		
@@ -69,7 +72,31 @@ public class Member implements Serializable {
 	   calculateStartEnd();
 	}
 	
-	
+	public void addForce(Forces2 forces2)
+	{
+		this.forces.add(forces2);
+		
+	}
+	public ArrayList<Forces2> getForce()
+	{
+		return forces;
+		
+	}
+	public void deleteForce() {
+		
+	 	 for (Iterator<Forces2> forceIterator = forces.iterator(); forceIterator.hasNext();) {
+	 		 
+	 		Forces2 forces = forceIterator.next();
+	 		
+	 		if (forces.isSelected()) {
+	 			
+	 		 forceIterator.remove();
+	 		 
+	 		}
+
+	      }
+	 	
+	 }
 	public void setLocalDeflections(double[] U, int[] index)
 	{
 		 //U=new double[6];

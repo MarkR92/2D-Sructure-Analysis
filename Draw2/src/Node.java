@@ -76,7 +76,21 @@ public ArrayList<Forces2> getForce()
 	return forces;
 	
 }
+public void deleteForce() {
+	
+	 for (Iterator<Forces2> forceIterator = forces.iterator(); forceIterator.hasNext();) {
+		 
+		Forces2 forces = forceIterator.next();
+		
+		if (forces.isSelected()) {
+			
+		 forceIterator.remove();
+		 
+		}
 
+     }
+	
+}
 
 
 public Point getCoord() {
@@ -145,31 +159,11 @@ public void drawNode(Graphics2D g2d) {
 		 g2d.drawOval(x+5, y+5, radius, radius);
 	}
 	
-//	for(int i=0;i<forces.size();i++)
-//	{
-//		double rotation= Math.toRadians(forces.get(i).direction);
-//		double magnitude= forces.get(i).magnitude;
-//		drawPointLoad(g2d,magnitude,rotation);
-//	}
     
    
 }
 
-public void deleteForce() {
-	
- 	 for (Iterator<Forces2> forceIterator = forces.iterator(); forceIterator.hasNext();) {
- 		 
- 		Forces2 forces = forceIterator.next();
- 		
- 		if (forces.isSelected()) {
- 			
- 		 forceIterator.remove();
- 		 
- 		}
 
-      }
- 	
- }
 
 
 public void drawFixturePinned(Graphics2D g2df) {

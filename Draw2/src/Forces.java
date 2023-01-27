@@ -185,16 +185,13 @@ public class Forces implements Serializable {
 		
 	}
 	public void drawMeasurementGraphics(Graphics2D g) {
-		
-//		AffineTransform old = g.getTransform();
-//		
-//		g.rotate((-angle*0.5),(end.x),(end.y));
+	
 		
 		g.setColor( Color.GRAY);
 		g.drawLine(midpointlocation.x,end.y-30, currentlocation.x, currentlocation.y-30);					//line
 		g.drawLine(end.x, end.y-35, end.x, end.y-25);							//start point line
 		g.drawLine(currentlocation.x, currentlocation.y-35, currentlocation.x, currentlocation.y-25);		//end point line
-	//	g.setTransform(old);
+	
 		
 		
 	}

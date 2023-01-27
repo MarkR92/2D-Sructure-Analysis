@@ -595,7 +595,7 @@ public ArrayList<int[]> getSortedMemberNodes(){
 		
 	}
 	
-    int count4 = 0;
+   
     @Override
     protected void paintComponent(Graphics grphcs) {
         super.paintComponent(grphcs);
@@ -619,68 +619,39 @@ public ArrayList<int[]> getSortedMemberNodes(){
 
 				
 				g2d.setColor(Color.lightGray);
-		
-				
-				
-	
-        for (Node node : nodesfilterd)
-        {
-        	node.drawNode(g2d);
-        			
-        	if(hideForces ==false)
-        	{
-        				
-        	
-        		for (Forces2 force:node.getForce())
-        		{
-        					 
-        			force.drawForce(g2d);
-        	        
-        	    }
-        		 
-        		 
-//        	 for (Forces force:forces) {
-//        		 
-//        		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Point")) {
-//        			 //System.out.println("hereforce2");
-//     				//force.drawPointLoad(g2d);
-//				 }
-//        		 if (node.getNodeNumber() == force.getNumber() && force.getType().matches("Moment")) {
-//        			//	force.drawMoment(g2d);
-//  				 }
-//        		 
-//        	 }
-        	
-        		
-
-        			}
-        }
-            
 
             	for (Member member :members) {
-            		
-            	member.drawBeam(g2d);
-           
-       			 count4++;
+  
        			 if(hideForces ==false) {
-       			 for (Forces force:forces) {
        				 
-       				
-       					 
-       				 if (member.getNumber() == force.getNumber() && force.getType().matches("Point")) {
-       					 force.drawPointLoad(g2d);
-       				 }
-       				 if (member.getNumber() == force.getNumber() && force.getType().matches("UDL")) {
-       					 force.drawUDL(g2d, member);
-     				 }
-       				 if (member.getNumber() == force.getNumber() && force.getType().matches("Moment")) {
-       					 force.drawMoment(g2d);
-     				 }
-        		
-       			 }
+       				member.drawBeam(g2d);
+       				for (Forces2 force:member.getForce())
+            		{
+            					 
+            			force.drawForce(g2d);
+            	        
+            	    }
        			 
             	}
             	}
+                for (Node node : nodesfilterd)
+                {
+                	node.drawNode(g2d);
+                			
+                	if(hideForces ==false)
+                	{
+                				
+                	
+                		for (Forces2 force:node.getForce())
+                		{
+                					 
+                			force.drawForce(g2d);
+                	        
+                	    }
+                		 
+
+                	}
+                }
             	for (DrawReactions drawreaction:drawreactions) {
             		drawreaction.drawReactions(g2d);
             	}
